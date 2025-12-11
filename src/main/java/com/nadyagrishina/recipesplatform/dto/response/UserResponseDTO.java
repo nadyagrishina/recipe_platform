@@ -2,6 +2,8 @@ package com.nadyagrishina.recipesplatform.dto.response;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,4 +16,5 @@ public class UserResponseDTO {
     private String name;
     private String surname;
     private String email;
+    private LocalDateTime createdAt;
 }
