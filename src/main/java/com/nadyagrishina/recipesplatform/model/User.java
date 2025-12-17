@@ -1,38 +1,35 @@
 package com.nadyagrishina.recipesplatform.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Table(name = "users")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
     private String passwordHash;
 
+    @Setter
     private String name;
 
+    @Setter
     private String surname;
 
+    @Setter
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -49,5 +46,9 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    public void changePassword(String hashedPassword){
+        this.passwordHash = hashedPassword;
     }
 }

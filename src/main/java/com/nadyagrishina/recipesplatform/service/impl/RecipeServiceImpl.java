@@ -54,7 +54,7 @@ public class RecipeServiceImpl implements RecipeService {
 
         recipe.setName(request.getName());
         recipe.setDescription(request.getDescription());
-        recipe.setImageUrls(request.getImageUrls());
+//        recipe.setImageUrls(request.getImageUrls());
 
         Recipe updatedRecipe = recipeRepository.save(recipe);
         return recipeMapper.toDto(updatedRecipe);
