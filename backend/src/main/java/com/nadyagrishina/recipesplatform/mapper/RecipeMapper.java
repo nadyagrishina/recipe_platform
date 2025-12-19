@@ -3,17 +3,29 @@ package com.nadyagrishina.recipesplatform.mapper;
 import com.nadyagrishina.recipesplatform.dto.request.RecipeRequestDTO;
 import com.nadyagrishina.recipesplatform.dto.response.RecipeResponseDTO;
 import com.nadyagrishina.recipesplatform.model.Recipe;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface RecipeMapper {
-    //DTO -> Entity
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "imageUrls", defaultExpression = "java(new java.util.ArrayList<>())")
-    Recipe toEntity(RecipeRequestDTO dto);
+@Component
+public class RecipeMapper {
 
-    //Entity -> DTO
-    RecipeResponseDTO toDto(Recipe entity);
+    public Recipe toEntity(RecipeRequestDTO dto) {
+        if (dto == null) return null;
+
+        Recipe recipe = Recipe.builder()
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .build();
+        return recipe;
+    }
+
+    public RecipeResponseDTO toDto(Recipe entity) {
+        if (entity == null) return null;
+
+        return RecipeResponseDTO.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .description(entity.getDescription())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
 }

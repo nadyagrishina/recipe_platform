@@ -9,7 +9,9 @@ import java.util.List;
 @Entity
 @Table(name = "recipes")
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Recipe extends BaseEntity{
 
     @Setter

@@ -23,5 +23,4 @@ public class RecipeRequestDTO {
     @NotBlank
     @Size(min = 3, max = 10000)
     private String description;
-
 }
