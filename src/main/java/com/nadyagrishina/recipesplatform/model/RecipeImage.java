@@ -9,11 +9,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "recipe_images")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecipeImage {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class RecipeImage extends BaseEntity{
 
     @Column(nullable = false, length = 1000)
     private String url;

@@ -14,11 +14,7 @@ import lombok.NoArgsConstructor;
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecipeStep {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class RecipeStep extends BaseEntity{
 
     @Column(name = "step_number", nullable = false)
     private Integer stepNumber;

@@ -2,9 +2,7 @@ package com.nadyagrishina.recipesplatform.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,11 +10,7 @@ import java.util.List;
 @Table(name = "recipes")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Recipe {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Recipe extends BaseEntity{
 
     @Setter
     @Column(nullable = false)
@@ -25,10 +19,6 @@ public class Recipe {
     @Setter
     @Column(length = 10000)
     private String description;
-
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
@@ -47,15 +37,8 @@ public class Recipe {
     @OneToMany(mappedBy = "recipe")
     private List<Comment> comments = new ArrayList<>();
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Recipe other)) return false;
-        return id != null && id.equals(other.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return 31;
-    }
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 }

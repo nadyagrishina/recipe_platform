@@ -14,6 +14,5 @@ public class RecipeResponseDTO {
     private Long id;
     private String name;
     private String description;
-    private List<String> imageUrls;
     private LocalDateTime createdAt;
 }

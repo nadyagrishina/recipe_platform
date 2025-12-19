@@ -24,5 +24,4 @@ public class RecipeRequestDTO {
     @Size(min = 3, max = 10000)
     private String description;
 
-    private List<String> imageUrls;
 }

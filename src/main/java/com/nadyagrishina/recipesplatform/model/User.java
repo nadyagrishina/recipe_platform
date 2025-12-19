@@ -4,17 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class User extends BaseEntity{
 
     @Setter
     @Column(nullable = false, unique = true)
@@ -35,18 +30,6 @@ public class User {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "author")
     private List<Recipe> recipes;
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
 
     public void changePassword(String hashedPassword){
         this.passwordHash = hashedPassword;
