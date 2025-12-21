@@ -1,0 +1,20 @@
+# ===== IDE =====
+.idea/
+.vscode/
+
+# ===== OS =====
+.DS_Store
+
+# ===== Backend (Spring Boot / Maven) =====
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# ===== Frontend (Vite / Node) =====
+frontend/node_modules/
+frontend/dist/
+
+# ===== Logs =====
+*.log
+
+# ===== Env =====
+.env
