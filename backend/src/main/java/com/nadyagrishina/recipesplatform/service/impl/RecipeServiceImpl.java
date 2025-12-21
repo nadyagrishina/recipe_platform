@@ -5,7 +5,9 @@ import com.nadyagrishina.recipesplatform.dto.response.RecipeResponseDTO;
 import com.nadyagrishina.recipesplatform.exception.NotFoundException;
 import com.nadyagrishina.recipesplatform.mapper.RecipeMapper;
 import com.nadyagrishina.recipesplatform.model.Recipe;
+import com.nadyagrishina.recipesplatform.model.User;
 import com.nadyagrishina.recipesplatform.repository.RecipeRepository;
+import com.nadyagrishina.recipesplatform.repository.UserRepository;
 import com.nadyagrishina.recipesplatform.service.RecipeService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     private final RecipeRepository recipeRepository;
     private final RecipeMapper recipeMapper;
+    private final UserRepository userRepository;
 
     @Override
     public List<RecipeResponseDTO> getAllRecipes() {
@@ -42,6 +45,10 @@ public class RecipeServiceImpl implements RecipeService {
     public RecipeResponseDTO createRecipe(RecipeRequestDTO request) {
         log.info("Creating new Recipe {}", request.getName());
         Recipe recipe = recipeMapper.toEntity(request);
+        User author = userRepository.findById(1L)
+                .orElseThrow(() -> new NotFoundException("Default user not found"));
+
+        recipe.setAuthor(author);
         Recipe savedRecipe = recipeRepository.save(recipe);
         return recipeMapper.toDto(savedRecipe);
     }

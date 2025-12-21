@@ -22,6 +22,7 @@ public class Recipe extends BaseEntity{
     @Column(length = 10000)
     private String description;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
