@@ -1,22 +1,39 @@
-import { TEXTS } from "../../constants/texts";
 import Logo from "./Logo";
 import Navigation from "./Navigation";
+import { TEXTS, type Language } from "../../constants/texts";
 
-export default function Header(){
+type Props = {
+  lang: Language;
+  setLang: (lang: Language) => void;
+};
+
+export default function Header({ lang, setLang }: Props) {
+  const t = TEXTS[lang];
+
   return (
     <header className="header">
       <div className="header__top">
-        <Logo />
+        <Logo subtext={t.header.logoSubtext} />
+
         <div className="header__buttons">
-          <button className="header__button header__button--language">
-            {TEXTS.header.language_cz}
+          <button
+            type="button"
+            className="header__button header__button--language"
+            onClick={() => setLang(lang === "cz" ? "en" : "cz")}
+          >
+            {lang === "cz" ? t.header.languageCz : t.header.languageEn}
           </button>
-          <button className="header__button header__button--login">
-            {TEXTS.header.login_button}
+
+          <button
+            type="button"
+            className="header__button header__button--login"
+          >
+            {t.header.loginButton}
           </button>
         </div>
       </div>
-      <Navigation />
+
+      <Navigation lang={lang} />
     </header>
   );
 }

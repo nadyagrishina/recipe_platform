@@ -1,16 +1,20 @@
 import { Routes, Route } from "react-router-dom";
+import { useState } from "react";
 import Header from "./components/global/Header";
-import RecipesPage from "./pages/RecipesPage";
+import HeroPage from "./pages/HeroPage";
+import { Language } from "./constants/texts";
 
 export default function App() {
+  const [lang, setLang] = useState<Language>("cz");
+
   return (
     <div className="app">
-      <Header/>
+      <Header lang={lang} setLang={setLang} />
 
       <main className="main">
         <div className="container">
           <Routes>
-            <Route path="/" element={<RecipesPage />}/>
+            <Route path="/" element={<HeroPage lang={lang} />} />
           </Routes>
         </div>
       </main>

@@ -1,22 +1,33 @@
 import { NavLink } from "react-router-dom";
+import { TEXTS, type Language } from "../../constants/texts";
 
-export default function Navigation() {
+type Props = {
+  lang: Language;
+};
+
+export default function Navigation({ lang }: Props) {
+  const t = TEXTS[lang];
+
   return (
     <nav className="nav">
       <NavLink to="/" className="nav__link">
-        Recipes
+        {t.navigation.recipes}
       </NavLink>
-      <NavLink to="/recipes/new" className="nav__link">
-        Create
+
+      <NavLink to="/categories" className="nav__link">
+        {t.navigation.categories}
       </NavLink>
+
       <NavLink to="/recipes/new" className="nav__link">
-        Vecere
+        {t.navigation.create}
       </NavLink>
-      <NavLink to="/recipes/new" className="nav__link">
-        Zdrave
+
+      <NavLink to="/favorites" className="nav__link">
+        {t.navigation.favorites}
       </NavLink>
-      <NavLink to="/recipes/new" className="nav__link">
-        Moje
+
+      <NavLink to="/my-recipes" className="nav__link">
+        {t.navigation.my}
       </NavLink>
     </nav>
   );

@@ -14,12 +14,16 @@ html, body {
 
 .main {
   flex: 1;
+  display: flex;
   overflow-y: auto;
 }
 
 .container {
+  flex: 1;
   max-width: 1280px;
   margin: 0 auto;
   padding-left: var(--space-lg);
   padding-right: var(--space-lg);
+
+  display: flex;
 }

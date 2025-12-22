@@ -12,8 +12,7 @@
   --text-md: 16px;
   --text-lg: 20px;
   --text-xl: 24px;
-  --text-2xl: 28px;
-  --text-3xl: 48px;
+  --text-2xl: 64px;
 
   /* ===== Font weights ===== */
   --font-light: 300;
@@ -28,6 +27,7 @@
   --color-text: #2f3b24;
   --color-text-accent: #ed760e;
   --color-text-inverted: #ffffff;
+  --color-text-muted: #4f5c43;
 
   --color-button: #5a9c72;
   --color-button-hover: #498860;
@@ -52,7 +52,7 @@
   --radius-lg: 16px;
 
   /* ===== Layout ===== */
-  --header-height: 90px;
+  --header-height: 200px;
   --container-width: 1280px;
 
   /* ===== Transitions ===== */

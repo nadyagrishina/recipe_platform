@@ -1,0 +1,65 @@
+/* ===== Recipes page ===== */
+.hero__wrapper {
+  background-image: url(../assets/images/header_bg.png);
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: contain;
+  background-size: 55%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.hero__button--wrapper {
+  padding: var(--space-xl);
+  display: flex;
+  justify-content: center;
+}
+
+.hero__text--wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero__title--span {
+  display: block;
+  color: var(--color-text-accent);
+}
+
+.hero__title {
+  line-height: 1.1;
+  margin-bottom: var(--space-md);
+}
+
+.hero__subtitle {
+  font-size: var(--text-lg);
+  font-weight: var(--font-light);
+  color: var(--color-text-muted);
+}
+
+.hero__scroll {
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  color: var(--color-text-muted);
+  animation: bounce 1.6s infinite;
+  transition: color var(--transition-fast);
+}
+
+.hero__scroll-icon {
+  width: 24px;
+  height: 24px;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}

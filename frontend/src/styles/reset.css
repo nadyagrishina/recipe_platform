@@ -59,3 +59,24 @@ ol {
 *:focus-visible{
   outline: none;
 }
+
+h1 {
+  font-size: var(--text-2xl);
+  font-family: var(--font-title);
+}
+
+h2 {
+  font-size: var(--text-xl);
+}
+
+h3 {
+  font-size: var(--text-lg);
+}
+
+h4 {
+  font-size: var(--text-md);
+}
+
+h5 {
+  font-size: var(--text-sm);
+}
