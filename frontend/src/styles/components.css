@@ -3,7 +3,6 @@
   display: flex;
   flex-direction: column;
   padding: var(--space-lg);
-  gap: var(--space-xs);
 }
 
 .header__top {
@@ -14,7 +13,7 @@
 
 .logo__subtext {
   font-size: var(--text-sm);
-  font-family: var(--font-subtext);
+  font-family: var(--font-secondary);
 }
 
 .header__buttons {
@@ -27,17 +26,17 @@
 }
 
 .header__button--login {
-  background-color: var(--color-button);
+  background-color: var(--color-button-primary);
   color: var(--color-text-inverted);
   padding: var(--space-xs) var(--space-lg);
   border-radius: var(--radius-xs);
-  min-width: 180px;
+  min-width: var(--header-login-min-width);
   text-align: center;
 }
 
 .header__button--login:hover {
-  background-color: var(--color-button-hover);
-  transform: translateY(-1px);
+  background-color: var(--color-button-primary-hover);
+  transform: var(--hover-lift-sm);
 }
 
 .header__button--language:hover {
@@ -55,12 +54,134 @@
   font-weight: var(--font-bold);
   text-transform: uppercase;
   color: var(--color-text);
+  padding: var(--space-xs) var(--space-sm);
 }
 
 .nav__link:hover,
 .nav__link.active {
   color: var(--color-text-accent);
-  transform: translateY(-1px);
+  transform: var(--hover-lift-sm);
 }
 
+/* ===== Recipe Card ===== */
+.recipe-card {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xs);
+  transition: var(--transition-fast);
+  cursor: pointer;
+  box-shadow: var(--card-shadow);
+}
 
+.recipe-card__title {
+  line-height: var(--line-height-tight);
+  min-height: calc(var(--line-height-tight) * 2em);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.recipe-card:hover {
+  transform: var(--hover-lift-md);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.recipe-card__image {
+  aspect-ratio: var(--card-image-ratio);
+  overflow: hidden;
+}
+
+.recipe-card__image--img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.recipe-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  flex: 1;
+}
+
+.recipe-card__favorite {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  background: var(--color-bg-card);
+  backdrop-filter: var(--blur-light);
+  border: none;
+  border-radius: 50%;
+  padding: var(--space-xs);
+  cursor: pointer;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.recipe-card__favorite:hover {
+  transform: scale(1.12);
+}
+
+.recipe-card__favorite-icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  display: block;
+}
+
+.recipe-card__favorite--active {
+  color: var(--color-like-active);
+}
+
+.recipe-card__favorite--active:hover {
+  transform: scale(1.16);
+}
+
+.recipe-card__favorite--active .recipe-card__favorite-icon {
+  animation: heart-pop 0.22s ease-out;
+}
+
+.recipe-card__meta {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  margin-top: auto;
+}
+
+.recipe-card__parameters {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.recipe-card__parameters-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+}
+
+.recipe-card__parameters--rating {
+  color: var(--color-icon-star);
+}
+
+.recipe-card__parameters--timer {
+  color: var(--color-text);
+}
+
+@keyframes heart-pop {
+  0% {
+    transform: scale(0.9);
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

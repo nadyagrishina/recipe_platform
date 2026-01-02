@@ -1,4 +1,7 @@
+import { useNavigate } from "react-router-dom";
 import { TEXTS, type Language } from "../constants/texts";
+import { useRef } from "react";
+import { ArrowIcon } from "../components/ui/icons";
 
 type Props = {
   lang: Language;
@@ -6,40 +9,39 @@ type Props = {
 
 export default function HeroPage({ lang }: Props) {
   const t = TEXTS[lang];
+  const navigate = useNavigate();
+  const navigatedRef = useRef(false);
+  const timeoutRef = useRef<number | null>(null);
 
-  const handleScrollDown = () => {
-    const nextSection = document.querySelector("#recipes-list");
-    nextSection?.scrollIntoView({ behavior: "smooth" });
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.deltaY > 10 && !navigatedRef.current) {
+      navigatedRef.current = true;
+      timeoutRef.current = window.setTimeout(() => {
+        navigate("/categories");
+      }, 250);
+    }
   };
 
   return (
-    <>
-      {/* HERO / INTRO SCREEN */}
-      <section className="hero__wrapper">
-        <div className="hero__text--wrapper">
-          <h1 className="hero__title">
-            {t.hero.title}
-            <span className="hero__title--span">{t.hero.titleAccent}</span>
-          </h1>
-          <p className="hero__subtitle">{t.hero.titleSubtext}</p>
-        </div>
-        <div className="hero__button--wrapper">
-          <button
-            type="button"
-            className="hero__scroll"
-            onClick={handleScrollDown}
-            aria-label="Scroll down"
-          >
-            <svg
-              className="hero__scroll-icon"
-              viewBox="0 0 640 640"
-              aria-hidden="true"
-            >
-              <path d="M297.4 438.6C309.9 451.1 330.2 451.1 342.7 438.6L502.7 278.6C515.2 266.1 515.2 245.8 502.7 233.3C490.2 220.8 469.9 220.8 457.4 233.3L320 370.7L182.6 233.4C170.1 220.9 149.8 220.9 137.3 233.4C124.8 245.9 124.8 266.2 137.3 278.7L297.3 438.7z" />
-            </svg>
-          </button>
-        </div>
-      </section>
-    </>
+    <section className="hero__wrapper" onWheel={handleWheel}>
+      <div className="hero__text--wrapper">
+        <h1 className="hero__title">
+          {t.hero.title}
+          <span className="hero__title--span">{t.hero.titleAccent}</span>
+        </h1>
+        <p className="hero__subtitle">{t.hero.titleSubtext}</p>
+      </div>
+
+      <div className="hero__button--wrapper">
+        <button
+          type="button"
+          className="hero__scroll"
+          onClick={() => navigate("/categories")}
+          aria-label="Go to categories"
+        >
+          <ArrowIcon className="icon-lg" />
+        </button>
+      </div>
+    </section>
   );
 }

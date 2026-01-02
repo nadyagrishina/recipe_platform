@@ -3,6 +3,7 @@ import { useState } from "react";
 import Header from "./components/global/Header";
 import HeroPage from "./pages/HeroPage";
 import { Language } from "./constants/texts";
+import RecipesPage from "./pages/RecipesPage";
 
 export default function App() {
   const [lang, setLang] = useState<Language>("cz");
@@ -15,6 +16,7 @@ export default function App() {
         <div className="container">
           <Routes>
             <Route path="/" element={<HeroPage lang={lang} />} />
+            <Route path="/categories" element={<RecipesPage lang={lang} /> } />
           </Routes>
         </div>
       </main>
