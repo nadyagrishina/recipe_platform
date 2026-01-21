@@ -1,7 +1,7 @@
 export const TEXTS_EN = {
   header: {
     logoSubtext: "online cookbook",
-    loginButton: "Login",
+    loginButton: "Log in",
     languageCz: "CZ",
     languageEn: "EN",
   },
@@ -15,7 +15,7 @@ export const TEXTS_EN = {
   hero: {
     title: "Tired of thinking about ",
     titleAccent: "what to cook?",
-    titleSubtext: "Check out the recipes or add your own!",
+    titleSubtext: "Browse recipes or add your own!",
   },
   categories: {
     title: "Recipes",
@@ -44,6 +44,49 @@ export const TEXTS_EN = {
     moreThan30: "More than 30 minutes",
   },
   rating: {
-    more: "and up",
+    more: "and more",
+  },
+  createRecipe: {
+    createRecipe: "Create recipe",
+    form: {
+      sections: {
+        basic: "Basic info",
+        ingredients: "Ingredients",
+        steps: "Preparation steps",
+        images: "Images",
+      },
+      fields: {
+        name: "Recipe name",
+        description: "Description",
+        time: "Preparation time (min)",
+        servings: "Servings",
+        category: "Category",
+        uploadImages: "Upload images",
+      },
+      placeholders: {
+        name: "e.g. Creamy mushroom pasta",
+        description: "Short description of the recipe",
+        category: "Select category",
+        ingredient: "e.g. 200 g pasta",
+        step: "Step",
+      },
+      hints: {
+        ingredients:
+          "Tip: add one per line — a new field appears automatically 😉",
+        imagesEmpty: "PNG/JPG/WebP",
+        imagesSelected: "File(s) selected",
+      },
+      actions: {
+        submit: "Save recipe",
+        clearImages: "Remove images",
+      },
+      aria: {
+        removeIngredient: "Remove ingredient",
+        removeStep: "Remove step",
+      },
+      titles: {
+        remove: "Remove",
+      },
+    },
   },
 };

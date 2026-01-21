@@ -38,6 +38,7 @@
   --color-button-primary: #5a9c72;
   --color-button-primary-hover: #498860;
   --color-button-accent: #ed760e;
+  --color-button-accent-hover:  #d9640c;
 
   --color-like-active: #e74c3c;
   --color-icon-star: #f7cf4c;
@@ -65,7 +66,7 @@
   --radius-lg: 16px;
 
   /* ===== Layout ===== */
-  --header-height: 200px;
+  --header-height: 160px;
   --container-width: 1280px;
   --filters-width: 280px;
   --header-login-min-width: 180px;

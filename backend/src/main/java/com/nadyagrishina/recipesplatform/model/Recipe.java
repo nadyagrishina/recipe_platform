@@ -27,6 +27,12 @@ public class Recipe extends BaseEntity{
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
+    @Column(name = "preparation_time_minutes", nullable = false)
+    private Integer preparationTimeMinutes;
+
+    @Column(nullable = false)
+    private Integer servings;
+
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ingredient> ingredients = new ArrayList<>();
 

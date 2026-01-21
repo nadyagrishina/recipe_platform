@@ -8,7 +8,7 @@ export const TEXTS_CZ = {
   navigation: {
     recipes: "Domů",
     categories: "Kategorie",
-    create: "Přidat recept",
+    create: "Vytvořit recept",
     favorites: "Oblíbené",
     my: "Moje recepty",
   },
@@ -45,5 +45,48 @@ export const TEXTS_CZ = {
   },
   rating: {
     more: "a více",
+  },
+  createRecipe: {
+    createRecipe: "Vytvořit recept",
+    form: {
+      sections: {
+        basic: "Základní informace",
+        ingredients: "Ingredience",
+        steps: "Postup",
+        images: "Obrázky",
+      },
+      fields: {
+        name: "Název receptu",
+        description: "Popis",
+        time: "Doba přípravy (min)",
+        servings: "Počet porcí",
+        category: "Kategorie",
+        uploadImages: "Nahrát obrázky",
+      },
+      placeholders: {
+        name: "Např. Krémové těstoviny s houbami",
+        description: "Krátký popis receptu",
+        category: "Vyberte kategorii",
+        ingredient: "Např. 200 g těstovin",
+        step: "Krok",
+      },
+      hints: {
+        ingredients:
+          "Tip: přidejte jednu položku na řádek — nové pole se objeví automaticky 😉",
+        imagesEmpty: "PNG/JPG/WebP",
+        imagesSelected: "Vybráno souborů",
+      },
+      actions: {
+        submit: "Uložit recept",
+        clearImages: "Odebrat obrázky",
+      },
+      aria: {
+        removeIngredient: "Odebrat ingredienci",
+        removeStep: "Odebrat krok",
+      },
+      titles: {
+        remove: "Odebrat",
+      },
+    },
   },
 };

@@ -82,13 +82,16 @@ h5 {
   font-size: var(--text-sm);
 }
 
+fieldset {
+  border: none;
+}
+
 .icon-md {
   width: var(--space-md);
   height: var(--space-md);
   display: inline-block;
   vertical-align: middle;
 }
-
 
 .icon-lg {
   width: var(--space-lg);

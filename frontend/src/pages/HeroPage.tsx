@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { TEXTS, type Language } from "../constants/texts";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { ArrowIcon } from "../components/ui/icons";
 
 type Props = {
@@ -10,18 +10,28 @@ type Props = {
 export default function HeroPage({ lang }: Props) {
   const t = TEXTS[lang];
   const navigate = useNavigate();
+
   const navigatedRef = useRef(false);
   const timeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleWheel = (e: React.WheelEvent) => {
     if (e.deltaY > 10 && !navigatedRef.current) {
       navigatedRef.current = true;
+
       timeoutRef.current = window.setTimeout(() => {
         navigate("/categories");
       }, 250);
     }
   };
-
+  
   return (
     <section className="hero__wrapper" onWheel={handleWheel}>
       <div className="hero__text--wrapper">

@@ -3,7 +3,7 @@
   background-image: url(../assets/images/header_bg.png);
   background-repeat: no-repeat;
   background-position: right bottom;
-  background-size: 55%;
+  background-size: min(55%, 700px);
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -56,9 +56,9 @@
 .recipes__wrapper {
   display: grid;
   grid-template-columns: 1fr var(--filters-width);
-  gap: var(--space-xl);
+  gap: var(--space-lg);
   height: 100%;
-  padding: var(--space-md) 0;
+  padding: var(--space-xs) 0;
 }
 
 .recipes__main {
@@ -156,15 +156,4 @@
 
 .recipes__filters--clear:hover {
   text-decoration: underline;
-}
-
-/* ===== Animations ===== */
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(8px);
-  }
 }
