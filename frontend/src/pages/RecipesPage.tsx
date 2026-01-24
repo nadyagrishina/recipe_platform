@@ -1,6 +1,6 @@
 import { TEXTS, type Language } from "../constants/texts";
 import { RecipeCard } from "../components/recipes/RecipeCard";
-import type { RecipeCardData } from "../components/types/recipe";
+import type { RecipeCardData } from "../components/models/recipe";
 
 type Props = {
   lang: Language;

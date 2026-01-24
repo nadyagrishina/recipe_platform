@@ -157,3 +157,101 @@
 .recipes__filters--clear:hover {
   text-decoration: underline;
 }
+
+/* ===== Auth page ===== */
+.auth__main{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.auth__header {
+  display: flex;
+  width: 100%;
+  padding: var(--space-md) var(--space-lg);
+  justify-content: space-between;
+}
+
+.auth__container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 150px);
+}
+
+.auth__card {
+  padding: var(--space-lg)
+}
+
+.auth__title {
+  display: block;
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.auth__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.auth__label{
+  font-weight: var(--font-medium);
+}
+
+.auth__input {
+  outline: none;
+  box-shadow: var(--input-shadow);
+  border: none;
+  width: 350px;
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+}
+
+.auth__input:focus {
+  border: 1px solid var(--color-button-primary);
+}
+
+.auth__submit {
+  background-color: var(--color-button-primary);
+  border: none;
+  border-radius: var(--radius-xs);
+  outline: none;
+  color: var(--color-text-inverted);
+  font-size: var(--text-lg);
+  padding: var(--space-xs) var(--space-md);
+}
+
+.auth__submit:hover{
+  background-color: var(--color-button-primary-hover);
+}
+
+.auth__footer {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+}
+
+.auth__error {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-xs);
+  color: var(--color-like-active);
+}
+
+.auth__link {
+  color: var(--color-text-accent);
+}
+
+.auth__link:hover {
+  color: var(--color-text-accent-hover);
+}

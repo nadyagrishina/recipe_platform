@@ -1,6 +1,8 @@
 import Logo from "./Logo";
 import Navigation from "./Navigation";
 import { TEXTS, type Language } from "../../constants/texts";
+import { Link } from "react-router-dom";
+import LanguageButton from "./LanguageButton";
 
 type Props = {
   lang: Language;
@@ -16,20 +18,11 @@ export default function Header({ lang, setLang }: Props) {
         <Logo subtext={t.header.logoSubtext} />
 
         <div className="header__buttons">
-          <button
-            type="button"
-            className="header__button header__button--language"
-            onClick={() => setLang(lang === "cz" ? "en" : "cz")}
-          >
-            {lang === "cz" ? t.header.languageCz : t.header.languageEn}
-          </button>
+          <LanguageButton lang={lang} setLang={setLang} />
 
-          <button
-            type="button"
-            className="header__button header__button--login"
-          >
+          <Link className="header__button header__button--login" to="/login">
             {t.header.loginButton}
-          </button>
+          </Link>
         </div>
       </div>
 

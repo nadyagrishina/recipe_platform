@@ -1,5 +1,5 @@
 import { useCallback, useId, useMemo, useRef, useState } from "react";
-import type { RecipeFormData } from "../types/recipe";
+import type { RecipeFormData } from "../models/recipe";
 import { TEXTS, type Language } from "../../constants/texts";
 import { CrossIcon } from "../ui/icons";
 

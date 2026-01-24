@@ -1,6 +1,6 @@
 import { RecipeForm } from "../components/recipes/RecipeForm";
 import { TEXTS, type Language } from "../constants/texts";
-import type { RecipeFormData } from "../components/types/recipe";
+import type { RecipeFormData } from "../components/models/recipe";
 
 type Props = {
   lang: Language;

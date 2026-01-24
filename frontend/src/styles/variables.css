@@ -33,6 +33,7 @@
   --color-text: #2f3b24;
   --color-text-muted: #4f5c43;
   --color-text-accent: #ed760e;
+    --color-text-accent-hover: #d9640c;
   --color-text-inverted: #ffffff;
 
   --color-button-primary: #5a9c72;
@@ -46,6 +47,8 @@
   /* ===== Shadows ===== */
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   --card-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.1);
+
+  --input-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
   /* ===== Spacing ===== */
   --space-2xs: 4px;

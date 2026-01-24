@@ -1,6 +1,6 @@
 // src/components/recipe-card/RecipeCard.tsx
 import { useState } from "react";
-import { RecipeCardData } from "../types/recipe";
+import { RecipeCardData } from "../models/recipe";
 import { HeartIcon } from "../ui/icons";
 import { TimerIcon } from "../ui/icons";
 import { StarIcon } from "../ui/icons";
