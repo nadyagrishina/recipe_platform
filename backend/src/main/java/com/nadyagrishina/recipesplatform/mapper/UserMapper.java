@@ -2,7 +2,7 @@ package com.nadyagrishina.recipesplatform.mapper;
 
 import com.nadyagrishina.recipesplatform.dto.request.UserRequestDTO;
 import com.nadyagrishina.recipesplatform.dto.response.UserResponseDTO;
-import com.nadyagrishina.recipesplatform.model.User;
+import com.nadyagrishina.recipesplatform.entity.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 

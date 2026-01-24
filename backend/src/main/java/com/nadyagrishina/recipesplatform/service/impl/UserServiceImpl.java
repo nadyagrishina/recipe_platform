@@ -5,7 +5,7 @@ import com.nadyagrishina.recipesplatform.dto.response.UserResponseDTO;
 import com.nadyagrishina.recipesplatform.exception.ConflictException;
 import com.nadyagrishina.recipesplatform.exception.NotFoundException;
 import com.nadyagrishina.recipesplatform.mapper.UserMapper;
-import com.nadyagrishina.recipesplatform.model.User;
+import com.nadyagrishina.recipesplatform.entity.User;
 import com.nadyagrishina.recipesplatform.repository.UserRepository;
 import com.nadyagrishina.recipesplatform.service.UserService;
 import jakarta.transaction.Transactional;

@@ -1,4 +1,4 @@
-package com.nadyagrishina.recipesplatform.model;
+package com.nadyagrishina.recipesplatform.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

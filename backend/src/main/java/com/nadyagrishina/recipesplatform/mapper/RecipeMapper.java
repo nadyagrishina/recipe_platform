@@ -2,7 +2,7 @@ package com.nadyagrishina.recipesplatform.mapper;
 
 import com.nadyagrishina.recipesplatform.dto.request.RecipeRequestDTO;
 import com.nadyagrishina.recipesplatform.dto.response.RecipeResponseDTO;
-import com.nadyagrishina.recipesplatform.model.Recipe;
+import com.nadyagrishina.recipesplatform.entity.Recipe;
 import org.springframework.stereotype.Component;
 
 @Component

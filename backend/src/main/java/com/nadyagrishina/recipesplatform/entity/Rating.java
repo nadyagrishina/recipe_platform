@@ -1,21 +1,19 @@
-package com.nadyagrishina.recipesplatform.model;
+package com.nadyagrishina.recipesplatform.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "favorites")
+@Table(name = "ratings")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Favorite {
+public class Rating {
 
     @EmbeddedId
-    private FavoriteId id;
+    private RatingId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
@@ -27,15 +25,19 @@ public class Favorite {
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
+    @Column(nullable = false)
+    private Integer score;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    public static Favorite create(User user, Recipe recipe) {
-        Favorite favorite = new Favorite();
-        favorite.user = user;
-        favorite.recipe = recipe;
-        favorite.id = new FavoriteId(user.getId(), recipe.getId());
-        return favorite;
+    public static Rating create(User user, Recipe recipe, Integer score){
+        Rating rating = new Rating();
+        rating.user = user;
+        rating.recipe = recipe;
+        rating.score = score;
+        rating.id = new RatingId(user.getId(), recipe.getId());
+        return rating;
     }
 }

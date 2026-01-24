@@ -1,4 +1,4 @@
-package com.nadyagrishina.recipesplatform.model;
+package com.nadyagrishina.recipesplatform.entity;
 
 public enum Unit {
     GRAM,
