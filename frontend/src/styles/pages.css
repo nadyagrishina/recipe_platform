@@ -209,7 +209,6 @@
 .auth__input {
   outline: none;
   box-shadow: var(--input-shadow);
-  border: none;
   width: 350px;
   padding: var(--space-xs) var(--space-md);
   border: 1px solid transparent;
