@@ -69,6 +69,9 @@ export const TEXTS_EN = {
         category: "Select category",
         ingredient: "e.g. 200 g pasta",
         step: "Step",
+        amount: "Amount",
+        unit: "Unit",
+        ingredientName: "e.g. pasta",
       },
       hints: {
         ingredients:
@@ -86,6 +89,16 @@ export const TEXTS_EN = {
       },
       titles: {
         remove: "Remove",
+      },
+      units: {
+        GRAM: "g",
+        KILOGRAM: "kg",
+        MILLILITER: "ml",
+        LITER: "l",
+        TEASPOON: "tsp",
+        TABLESPOON: "tbsp",
+        CUP: "cup",
+        PIECE: "pcs",
       },
     },
   },

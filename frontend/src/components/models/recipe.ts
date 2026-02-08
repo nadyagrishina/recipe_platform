@@ -12,7 +12,23 @@ export type RecipeFormData = {
   preparationTimeMinutes: number;
   servings: number;
   categoryId: string;
-  ingredients: string[];
+  ingredients: IngredientFormItem[];
   steps: string[];
   images: File[];
+};
+
+export type Unit =
+  | "GRAM"
+  | "KILOGRAM"
+  | "MILLILITER"
+  | "LITER"
+  | "TEASPOON"
+  | "TABLESPOON"
+  | "CUP"
+  | "PIECE";
+
+export type IngredientFormItem = {
+  name: string;
+  amount: string;
+  unit: Unit | "";
 };

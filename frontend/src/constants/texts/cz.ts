@@ -69,6 +69,9 @@ export const TEXTS_CZ = {
         category: "Vyberte kategorii",
         ingredient: "Např. 200 g těstovin",
         step: "Krok",
+        amount: "Množství",
+        unit: "Jednotka",
+        ingredientName: "Např. těstoviny",
       },
       hints: {
         ingredients:
@@ -86,6 +89,16 @@ export const TEXTS_CZ = {
       },
       titles: {
         remove: "Odebrat",
+      },
+      units: {
+        GRAM: "g",
+        KILOGRAM: "kg",
+        MILLILITER: "ml",
+        LITER: "l",
+        TEASPOON: "lžička",
+        TABLESPOON: "lžíce",
+        CUP: "hrnek",
+        PIECE: "ks",
       },
     },
   },

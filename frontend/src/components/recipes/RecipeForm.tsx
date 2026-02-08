@@ -1,5 +1,9 @@
-import { useCallback, useId, useMemo, useRef, useState } from "react";
-import type { RecipeFormData } from "../models/recipe";
+import React, { useCallback, useId, useMemo, useRef, useState } from "react";
+import type {
+  IngredientFormItem,
+  RecipeFormData,
+  Unit,
+} from "../models/recipe";
 import { TEXTS, type Language } from "../../constants/texts";
 import { CrossIcon } from "../ui/icons";
 
@@ -17,6 +21,20 @@ function normalizeList(list: string[] | undefined, fallback: string[] = [""]) {
   return normalized.length ? normalized : [""];
 }
 
+function normalizeIngredients(
+  list: IngredientFormItem[] | undefined,
+): IngredientFormItem[] {
+  if (!list || list.length === 0) {
+    return [{ name: "", amount: "", unit: "" }];
+  }
+
+  return list.map((v) => ({
+    name: v?.name ?? "",
+    amount: v?.amount ?? "",
+    unit: v?.unit ?? "",
+  }));
+}
+
 export function RecipeForm({
   initialData = {},
   onSubmit,
@@ -31,18 +49,19 @@ export function RecipeForm({
   const [name, setName] = useState(initialData.name ?? "");
   const [description, setDescription] = useState(initialData.description ?? "");
   const [time, setTime] = useState<number>(
-    initialData.preparationTimeMinutes ?? 1
+    initialData.preparationTimeMinutes ?? 1,
   );
   const [servings, setServings] = useState<number>(initialData.servings ?? 1);
   const [categoryId, setCategoryId] = useState<string>(
-    initialData.categoryId ? String(initialData.categoryId) : ""
+    initialData.categoryId ? String(initialData.categoryId) : "",
   );
 
-  const [ingredients, setIngredients] = useState<string[]>(
-    normalizeList(initialData.ingredients)
+  const [ingredients, setIngredients] = useState<IngredientFormItem[]>(
+    normalizeIngredients(initialData.ingredients),
   );
+
   const [steps, setSteps] = useState<string[]>(
-    normalizeList(initialData.steps)
+    normalizeList(initialData.steps),
   );
   const [images, setImages] = useState<File[]>([]);
 
@@ -54,7 +73,21 @@ export function RecipeForm({
       { value: "4", label: t.tags.desserts },
       { value: "5", label: t.tags.snacks },
     ],
-    [t]
+    [t],
+  );
+
+  const unitOptions = useMemo(
+    () => [
+      { value: "GRAM" as const, label: f.units.GRAM },
+      { value: "KILOGRAM" as const, label: f.units.KILOGRAM },
+      { value: "MILLILITER" as const, label: f.units.MILLILITER },
+      { value: "LITER" as const, label: f.units.LITER },
+      { value: "TEASPOON" as const, label: f.units.TEASPOON },
+      { value: "TABLESPOON" as const, label: f.units.TABLESPOON },
+      { value: "CUP" as const, label: f.units.CUP },
+      { value: "PIECE" as const, label: f.units.PIECE },
+    ],
+    [f.units],
   );
 
   const updateListValue = useCallback(
@@ -62,13 +95,13 @@ export function RecipeForm({
       index: number,
       value: string,
       list: string[],
-      setList: (v: string[]) => void
+      setList: (v: string[]) => void,
     ) => {
       const next = [...list];
       next[index] = value;
       setList(next);
     },
-    []
+    [],
   );
 
   const ensureTrailingEmpty = useCallback(
@@ -77,7 +110,7 @@ export function RecipeForm({
       const hasText = list[index].trim().length > 0;
       if (isLast && hasText) setList([...list, ""]);
     },
-    []
+    [],
   );
 
   const removeListItem = useCallback(
@@ -85,8 +118,39 @@ export function RecipeForm({
       const next = list.filter((_, i) => i !== index);
       setList(next.length ? next : [""]);
     },
-    []
+    [],
   );
+
+  const updateIngredient = useCallback(
+    (index: number, patch: Partial<IngredientFormItem>) => {
+      setIngredients((prev) => {
+        const next = [...prev];
+        next[index] = { ...next[index], ...patch };
+        return next;
+      });
+    },
+    [],
+  );
+
+  const ensureTrailingEmptyIngredient = useCallback((index: number) => {
+    setIngredients((prev) => {
+      const isLast = index === prev.length - 1;
+      if (!isLast) return prev;
+
+      const row = prev[index];
+      const hasName = row.name.trim().length > 0;
+
+      if (!hasName) return prev;
+      return [...prev, { name: "", amount: "", unit: "" }];
+    });
+  }, []);
+
+  const removeIngredient = useCallback((index: number) => {
+    setIngredients((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      return next.length ? next : [{ name: "", amount: "", unit: "" }];
+    });
+  }, []);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -94,13 +158,21 @@ export function RecipeForm({
     (e: React.FormEvent) => {
       e.preventDefault();
 
+      const normalizedIngredients = ingredients
+        .map((x) => ({
+          name: x.name.trim(),
+          amount: x.amount.trim(),
+          unit: x.unit,
+        }))
+        .filter((x) => x.name.length > 0);
+
       onSubmit({
         name: name.trim(),
         description: description.trim(),
         preparationTimeMinutes: time,
         servings,
         categoryId,
-        ingredients: ingredients.map((x) => x.trim()).filter(Boolean),
+        ingredients: normalizedIngredients,
         steps: steps.map((x) => x.trim()).filter(Boolean),
         images,
       });
@@ -115,7 +187,7 @@ export function RecipeForm({
       ingredients,
       steps,
       images,
-    ]
+    ],
   );
 
   return (
@@ -159,9 +231,7 @@ export function RecipeForm({
                     className="create-recipe__file-clear"
                     onClick={() => {
                       setImages([]);
-                      if (fileInputRef.current) {
-                        fileInputRef.current.value = "";
-                      }
+                      if (fileInputRef.current) fileInputRef.current.value = "";
                     }}
                   >
                     {f.actions.clearImages}
@@ -283,41 +353,72 @@ export function RecipeForm({
             <div className="create-recipe__hint">{f.hints.ingredients}</div>
 
             <div className="create-recipe__list">
-              {ingredients.map((val, i) => (
-                <div className="create-recipe__list-item" key={`ing-${i}`}>
-                  <input
-                    className="create-recipe__input"
-                    value={val}
-                    placeholder={f.placeholders.ingredient}
-                    onChange={(e) =>
-                      updateListValue(
-                        i,
-                        e.target.value,
-                        ingredients,
-                        setIngredients
-                      )
-                    }
-                    onBlur={() =>
-                      ensureTrailingEmpty(i, ingredients, setIngredients)
-                    }
-                  />
+              {ingredients.map((row, i) => {
+                const disableRemove =
+                  ingredients.length === 1 &&
+                  !row.name.trim() &&
+                  !row.amount.trim() &&
+                  !row.unit.trim();
 
-                  <button
-                    type="button"
-                    className="create-recipe__icon-btn"
-                    aria-label={f.aria.removeIngredient}
-                    onClick={() =>
-                      removeListItem(i, ingredients, setIngredients)
-                    }
-                    disabled={
-                      ingredients.length === 1 && !ingredients[0].trim()
-                    }
-                    title={f.titles.remove}
+                return (
+                  <div
+                    className="create-recipe__list-item--ingredients"
+                    key={`ing-${i}`}
                   >
-                    <CrossIcon className="icon-md create-recipe__icon-btn--cross" />
-                  </button>
-                </div>
-              ))}
+                    <input
+                      className="create-recipe__input create-recipe__input--ingredient"
+                      value={row.name}
+                      placeholder={f.placeholders.ingredient}
+                      onChange={(e) =>
+                        updateIngredient(i, { name: e.target.value })
+                      }
+                      onBlur={() => ensureTrailingEmptyIngredient(i)}
+                    />
+
+                    <input
+                      className="create-recipe__input create-recipe__input--amount"
+                      value={row.amount}
+                      inputMode="decimal"
+                      placeholder={f.placeholders.amount ?? "Amount"}
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        const cleaned = raw
+                          .replace(",", ".")
+                          .replace(/[^\d.]/g, "")
+                          .replace(/^(\d*\.?\d{0,2}).*$/, "$1");
+                        updateIngredient(i, { amount: cleaned });
+                      }}
+                    />
+
+                    <select
+                      className="create-recipe__select create-recipe__select--unit"
+                      value={row.unit}
+                      onChange={(e) =>
+                        updateIngredient(i, { unit: e.target.value as Unit })
+                      }
+                      required={row.name.trim().length > 0}
+                    >
+                      <option value="">{f.placeholders.unit ?? "Unit"}</option>
+                      {unitOptions.map((u) => (
+                        <option key={u.value} value={u.value}>
+                          {u.label}
+                        </option>
+                      ))}
+                    </select>
+
+                    <button
+                      type="button"
+                      className="create-recipe__icon-btn"
+                      aria-label={f.aria.removeIngredient}
+                      onClick={() => removeIngredient(i)}
+                      disabled={disableRemove}
+                      title={f.titles.remove}
+                    >
+                      <CrossIcon className="icon-md create-recipe__icon-btn--cross" />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </fieldset>
 
@@ -328,9 +429,10 @@ export function RecipeForm({
 
             <div className="create-recipe__list">
               {steps.map((val, i) => (
-                <div className="create-recipe__list-item" key={`step-${i}`}>
+                <div className="create-recipe__list-item--steps" key={`step-${i}`}>
                   <textarea
-                    className="create-recipe__textarea"
+                    className="create-recipe__textarea
+                    create-recipe__textarea--step"
                     rows={2}
                     value={val}
                     placeholder={`${f.placeholders.step} ${i + 1}`}
