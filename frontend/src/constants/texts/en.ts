@@ -128,4 +128,43 @@ export const TEXTS_EN = {
       goLogin: "Log in",
     },
   },
+  recipeDetail: {
+    actions: {
+      back: "Back",
+      addToFavorites: "Add to favorites",
+      removeFromFavorites: "Remove from favorites",
+      sendComment: "Send",
+    },
+    sections: {
+      photos: "Photos",
+      comments: "Comments",
+    },
+    fields: {
+      rating: "Rating",
+      comment: "Comment",
+    },
+    placeholders: {
+      comment: "Write a comment…",
+    },
+    hints: {
+      noPhotos: "No photos yet 😭",
+      noComments: "No comments yet. Be the first 😉",
+    },
+    meta: {
+      time: "Time",
+      minutes: "min",
+      servings: "Servings",
+      noRating: "No rating",
+      you: "You",
+      commentsCount: (n: number) => `${n} comments`,
+    },
+    aria: {
+      thumbAlt: (n: number) => `Open photo ${n}`,
+      mainPhotoAlt: (title: string) => `Recipe photo: ${title}`,
+    },
+    errors: {
+      invalidId: "Invalid recipe id",
+      notFound: "Recipe not found",
+    },
+  },
 };

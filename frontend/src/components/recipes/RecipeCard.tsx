@@ -1,9 +1,8 @@
 // src/components/recipe-card/RecipeCard.tsx
 import { useState } from "react";
-import { RecipeCardData } from "../models/recipe";
-import { HeartIcon } from "../ui/icons";
-import { TimerIcon } from "../ui/icons";
-import { StarIcon } from "../ui/icons";
+import { Link } from "react-router-dom";
+import type { RecipeCardData } from "../models/recipe";
+import { HeartIcon, TimerIcon, StarIcon } from "../ui/icons";
 
 type Props = {
   recipe: RecipeCardData;
@@ -13,12 +12,16 @@ export function RecipeCard({ recipe }: Props) {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const toggleFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
+    e.preventDefault(); // 🔥 важно, чтобы Link не сработал
+    e.stopPropagation(); // 🔥 на всякий
     setIsFavorite((prev) => !prev);
   };
 
   return (
-    <article className="recipe-card">
+    <Link
+      to={`/recipes/${recipe.id}`}
+      className="recipe-card recipe-card--link"
+    >
       <div className="recipe-card__image">
         <img
           className="recipe-card__image--img"
@@ -67,6 +70,6 @@ export function RecipeCard({ recipe }: Props) {
           </button>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }

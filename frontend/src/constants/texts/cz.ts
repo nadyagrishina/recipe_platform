@@ -128,4 +128,43 @@ export const TEXTS_CZ = {
       goLogin: "Přihlaste se",
     },
   },
+  recipeDetail: {
+    actions: {
+      back: "Zpět",
+      addToFavorites: "Přidat do oblíbených",
+      removeFromFavorites: "Odebrat z oblíbených",
+      sendComment: "Odeslat",
+    },
+    sections: {
+      photos: "Fotky",
+      comments: "Komentáře",
+    },
+    fields: {
+      rating: "Hodnocení",
+      comment: "Komentář",
+    },
+    placeholders: {
+      comment: "Napište komentář…",
+    },
+    hints: {
+      noPhotos: "Zatím žádné fotky 😭",
+      noComments: "Zatím žádné komentáře. Buďte první 😉",
+    },
+    meta: {
+      time: "Doba",
+      minutes: "min",
+      servings: "Porce",
+      noRating: "Bez hodnocení",
+      you: "Vy",
+      commentsCount: (n: number) => `${n} komentářů`,
+    },
+    aria: {
+      thumbAlt: (n: number) => `Otevřít fotku ${n}`,
+      mainPhotoAlt: (title: string) => `Fotka receptu: ${title}`,
+    },
+    errors: {
+      invalidId: "Neplatné ID receptu",
+      notFound: "Recept nebyl nalezen",
+    },
+  },
 };

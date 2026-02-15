@@ -86,6 +86,13 @@ fieldset {
   border: none;
 }
 
+.icon-sm {
+  width: var(--space-sm);
+  height: var(--space-sm);
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .icon-md {
   width: var(--space-md);
   height: var(--space-md);
