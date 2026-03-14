@@ -4,6 +4,7 @@ export const TEXTS_CZ = {
     loginButton: "Přihlásit se",
     languageCz: "CZ",
     languageEn: "EN",
+    profileButton: "Profil",
   },
   navigation: {
     recipes: "Domů",
@@ -117,6 +118,8 @@ export const TEXTS_CZ = {
     },
     register: {
       title: "Registrace",
+      emailLabel: "Email",
+      emailPlaceholder: "Zadejte email",
       usernameLabel: "Uživatelské jméno",
       usernamePlaceholder: "Zadejte uživatelské jméno",
       passwordLabel: "Heslo",
@@ -149,6 +152,7 @@ export const TEXTS_CZ = {
     hints: {
       noPhotos: "Zatím žádné fotky 😭",
       noComments: "Zatím žádné komentáře. Buďte první 😉",
+      noDescription: "Tento recept zatím nemá popis.",
     },
     meta: {
       time: "Doba",
@@ -166,5 +170,21 @@ export const TEXTS_CZ = {
       invalidId: "Neplatné ID receptu",
       notFound: "Recept nebyl nalezen",
     },
+  },
+  profile: {
+    title: "Můj profil",
+    aboutTitle: "O mně",
+    aboutText: "Vítejte na své profilové stránce.",
+    statsTitle: "Statistiky",
+    myRecipes: "Moje recepty",
+    favoriteRecipes: "Oblíbené recepty",
+    savedRecipes: "Uložené recepty",
+    actions: "Akce",
+    editProfile: "Upravit profil",
+    settings: "Nastavení",
+    logout: "Odhlásit se",
+    loading: "Načítání profilu...",
+    loadError: "Profil se nepodařilo načíst.",
+    noRecipes: "Zatím nemáte žádné recepty.",
   },
 };

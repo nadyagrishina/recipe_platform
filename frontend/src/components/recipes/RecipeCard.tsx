@@ -12,8 +12,8 @@ export function RecipeCard({ recipe }: Props) {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const toggleFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // 🔥 важно, чтобы Link не сработал
-    e.stopPropagation(); // 🔥 на всякий
+    e.preventDefault();
+    e.stopPropagation();
     setIsFavorite((prev) => !prev);
   };
 

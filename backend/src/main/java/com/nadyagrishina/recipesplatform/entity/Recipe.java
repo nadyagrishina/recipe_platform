@@ -27,9 +27,11 @@ public class Recipe extends BaseEntity{
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
+    @Setter
     @Column(name = "preparation_time_minutes", nullable = false)
     private Integer preparationTimeMinutes;
 
+    @Setter
     @Column(nullable = false)
     private Integer servings;
 

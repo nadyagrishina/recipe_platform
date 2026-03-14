@@ -22,12 +22,7 @@ export default function LoginPage({ lang }: Props) {
 
     try {
       const { token } = await login({ username, password });
-
       localStorage.setItem("token", token);
-
-      const user = await getUserByUsername(username);
-      localStorage.setItem("user", JSON.stringify(user));
-
       navigate("/profile");
     } catch (err) {
       console.error(err);
@@ -74,6 +69,7 @@ export default function LoginPage({ lang }: Props) {
                 className="auth__input"
                 placeholder={t.auth.login.passwordPlaceholder}
                 required
+                minLength={8}
                 autoComplete="current-password"
               />
             </div>
@@ -81,7 +77,9 @@ export default function LoginPage({ lang }: Props) {
             <button
               type="submit"
               className="auth__submit"
-              disabled={!username || !password || loading}
+              disabled={
+                !username || !password || password.length < 8 || loading
+              }
             >
               {loading ? t.auth.login.loading : t.auth.login.submit}
             </button>

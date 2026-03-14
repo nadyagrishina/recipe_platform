@@ -12,6 +12,8 @@ type Props = {
 export default function Header({ lang, setLang }: Props) {
   const t = TEXTS[lang];
 
+  const token = localStorage.getItem("token");
+
   return (
     <header className="header">
       <div className="header__top">
@@ -20,9 +22,18 @@ export default function Header({ lang, setLang }: Props) {
         <div className="header__buttons">
           <LanguageButton lang={lang} setLang={setLang} />
 
-          <Link className="header__button header__button--login" to="/login">
-            {t.header.loginButton}
-          </Link>
+          {token ? (
+            <Link
+              className="header__button header__button--profile"
+              to="/profile"
+            >
+              {t.header.profileButton}
+            </Link>
+          ) : (
+            <Link className="header__button header__button--login" to="/login">
+              {t.header.loginButton}
+            </Link>
+          )}
         </div>
       </div>
 

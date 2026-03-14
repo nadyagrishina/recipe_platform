@@ -4,6 +4,7 @@ export const TEXTS_EN = {
     loginButton: "Log in",
     languageCz: "CZ",
     languageEn: "EN",
+    profileButton: "Profile",
   },
   navigation: {
     recipes: "Home",
@@ -117,6 +118,8 @@ export const TEXTS_EN = {
     },
     register: {
       title: "Sign up",
+      emailLabel: "Email",
+      emailPlaceholder: "Choose an email",
       usernameLabel: "Username",
       usernamePlaceholder: "Choose a username",
       passwordLabel: "Password",
@@ -149,6 +152,7 @@ export const TEXTS_EN = {
     hints: {
       noPhotos: "No photos yet 😭",
       noComments: "No comments yet. Be the first 😉",
+      noDescription: "This recipe has no description yet.",
     },
     meta: {
       time: "Time",
@@ -166,5 +170,21 @@ export const TEXTS_EN = {
       invalidId: "Invalid recipe id",
       notFound: "Recipe not found",
     },
+  },
+  profile: {
+    title: "My Profile",
+    aboutTitle: "About me",
+    aboutText: "Welcome to your personal profile page.",
+    statsTitle: "Statistics",
+    myRecipes: "My recipes",
+    favoriteRecipes: "Favorite recipes",
+    savedRecipes: "Saved recipes",
+    actions: "Actions",
+    editProfile: "Edit profile",
+    settings: "Settings",
+    logout: "Log out",
+    loading: "Loading profile...",
+    loadError: "Failed to load profile.",
+    noRecipes: "You have no recipes yet.",
   },
 };

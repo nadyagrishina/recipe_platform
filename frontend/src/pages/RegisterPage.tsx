@@ -10,6 +10,7 @@ export default function RegisterPage({ lang }: Props) {
   const t = TEXTS[lang];
   const navigate = useNavigate();
 
+  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -21,22 +22,14 @@ export default function RegisterPage({ lang }: Props) {
     setLoading(true);
 
     try {
-      await register({ username, password });
-
-      const { token } = await login({ username, password });
+      const { token } = await register({ email, username, password });
       localStorage.setItem("token", token);
-
-      const user = await getUserByUsername(username);
-      localStorage.setItem("user", JSON.stringify(user));
-
       navigate("/profile");
     } catch (err) {
       console.error(err);
       setError(t.auth.register.errorGeneric);
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -47,6 +40,22 @@ export default function RegisterPage({ lang }: Props) {
           <h2 className="auth__title">{t.auth.register.title}</h2>
 
           <form className="auth__form" onSubmit={handleRegister}>
+            <div className="auth__field">
+              <label htmlFor="email" className="auth__label">
+                {t.auth.register.emailLabel}
+              </label>
+              <input
+                type="text"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="auth__input"
+                placeholder={t.auth.register.emailPlaceholder}
+                required
+                autoComplete="email"
+              />
+            </div>
+
             <div className="auth__field">
               <label htmlFor="username" className="auth__label">
                 {t.auth.register.usernameLabel}
@@ -75,6 +84,7 @@ export default function RegisterPage({ lang }: Props) {
                 className="auth__input"
                 placeholder={t.auth.register.passwordPlaceholder}
                 required
+                minLength={8}
                 autoComplete="new-password"
               />
             </div>
@@ -82,7 +92,7 @@ export default function RegisterPage({ lang }: Props) {
             <button
               type="submit"
               className="auth__submit"
-              disabled={!username || !password || loading}
+              disabled={!username || !password || password.length < 8 || loading}
             >
               {loading ? t.auth.register.loading : t.auth.register.submit}
             </button>

@@ -3,17 +3,10 @@ package com.nadyagrishina.recipesplatform.mapper;
 import com.nadyagrishina.recipesplatform.dto.request.UserRequestDTO;
 import com.nadyagrishina.recipesplatform.dto.response.UserResponseDTO;
 import com.nadyagrishina.recipesplatform.entity.User;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
-
-    private final PasswordEncoder passwordEncoder;
-
-    public UserMapper(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public User toEntity(UserRequestDTO dto) {
         if (dto == null) return null;
@@ -21,7 +14,8 @@ public class UserMapper {
         return User.builder()
                 .username(dto.getUsername())
                 .email(dto.getEmail())
-                .passwordHash(passwordEncoder.encode(dto.getPassword())) // Хэшируем пароль
+                .name(dto.getName())
+                .surname(dto.getSurname())
                 .build();
     }
 
@@ -31,6 +25,8 @@ public class UserMapper {
         return UserResponseDTO.builder()
                 .id(entity.getId())
                 .username(entity.getUsername())
+                .name(entity.getName())
+                .surname(entity.getSurname())
                 .email(entity.getEmail())
                 .createdAt(entity.getCreatedAt())
                 .build();

@@ -3,7 +3,6 @@ package com.nadyagrishina.recipesplatform.dto.response;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
@@ -14,5 +13,7 @@ public class RecipeResponseDTO {
     private Long id;
     private String name;
     private String description;
+    private Integer preparationTimeMinutes;
+    private Integer servings;
     private LocalDateTime createdAt;
 }

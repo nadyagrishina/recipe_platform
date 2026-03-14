@@ -1,3 +1,22 @@
+export type RecipeApiResponse = {
+  id: number;
+  name: string;
+  description: string;
+  preparationTimeMinutes: number;
+  servings: number;
+  createdAt: string;
+};
+
+export type RecipeDetailApiResponse = {
+  id: number;
+  name: string;
+  description: string;
+  preparationTimeMinutes: number;
+  servings: number;
+  createdAt: string;
+};
+
+
 export type RecipeCardData = {
   id: number;
   title: string;
@@ -6,12 +25,19 @@ export type RecipeCardData = {
   time?: number;
 };
 
+export type CreateRecipeRequest = {
+  name: string;
+  description: string;
+  preparationTimeMinutes: number;
+  servings: number;
+};
+
 export type RecipeFormData = {
   name: string;
   description: string;
   preparationTimeMinutes: number;
   servings: number;
-  categoryId: string;
+  categoryId?: string;
   ingredients: IngredientFormItem[];
   steps: string[];
   images: File[];

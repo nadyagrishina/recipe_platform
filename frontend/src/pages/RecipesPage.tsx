@@ -1,6 +1,10 @@
+import { useEffect, useState } from "react";
 import { TEXTS, type Language } from "../constants/texts";
 import { RecipeCard } from "../components/recipes/RecipeCard";
-import type { RecipeCardData } from "../components/models/recipe";
+import type {
+  RecipeApiResponse,
+  RecipeCardData,
+} from "../components/models/recipe";
 
 type Props = {
   lang: Language;
@@ -9,62 +13,41 @@ type Props = {
 export default function RecipesPage({ lang }: Props) {
   const t = TEXTS[lang];
 
-  const recipes: RecipeCardData[] = [
-    {
-      id: 1,
-      title: "Creamy Mushroom ",
-      rating: 4.6,
-      time: 30,
-    },
-    {
-      id: 2,
-      title: "Creamy Mushroom Pasta",
-      rating: 4.6,
-      time: 30,
-    },
-    {
-      id: 3,
-      title: "Creamy Mushroom Pasta",
-      rating: 4.6,
-      time: 30,
-    },
-    {
-      id: 4,
-      title: "Creamy Mushroom ",
-      rating: 4.6,
-      time: 30,
-    },
-    {
-      id: 5,
-      title: "Creamy Mushroom Pasta",
-      rating: 4.6,
-      time: 30,
-    },
-    {
-      id: 6,
-      title: "Creamy Mushroom Pasta",
-      rating: 4.6,
-      time: 30,
-    },
-    {
-      id: 7,
-      title: "Creamy Mushroom ",
-      rating: 4.6,
-      time: 30,
-    },
-    {
-      id: 8,
-      title: "Creamy Mushroom Pasta",
-      rating: 4.6,
-      time: 30,
-    },
-    {
-      id: 9,
-      title: "Creamy Mushroom Pasta",
-      rating: 4.6,
-      time: 30,
-    },
-  ];
+  const [recipes, setRecipes] = useState<RecipeCardData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadRecipes() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch("http://localhost:8080/api/recipes");
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch recipes: ${response.status}`);
+        }
+
+        const data: RecipeApiResponse[] = await response.json();
+
+        const mappedRecipes: RecipeCardData[] = data.map((recipe) => ({
+          id: recipe.id,
+          title: recipe.name,
+          time: recipe.preparationTimeMinutes,
+        }));
+
+        setRecipes(mappedRecipes);
+      } catch (err) {
+        console.error("Failed to load recipes", err);
+        setError("Failed to load recipes");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadRecipes();
+  }, []);
 
   return (
     <section className="recipes">
@@ -80,16 +63,22 @@ export default function RecipesPage({ lang }: Props) {
           </div>
 
           <main className="recipes__list">
-            {recipes.map((recipe) => (
-              <RecipeCard key={recipe.id} recipe={recipe} />
-            ))}
+            {loading && <p>Loading recipes...</p>}
+            {error && <p>{error}</p>}
+            {!loading && !error && recipes.length === 0 && (
+              <p>No recipes found.</p>
+            )}
+            {!loading &&
+              !error &&
+              recipes.map((recipe) => (
+                <RecipeCard key={recipe.id} recipe={recipe} />
+              ))}
           </main>
         </div>
 
         <aside className="recipes__filters">
           <h3 className="recipes__filters--title">{t.categories.filters}</h3>
 
-          {/* Categories */}
           <h4>{t.categories.categories}</h4>
           <ul className="recipes__filters--list columns-2">
             <li>
@@ -124,7 +113,6 @@ export default function RecipesPage({ lang }: Props) {
             </li>
           </ul>
 
-          {/* Diet */}
           <h4>{t.categories.diet}</h4>
           <ul className="recipes__filters--list columns-2">
             <li>
@@ -147,7 +135,6 @@ export default function RecipesPage({ lang }: Props) {
             </li>
           </ul>
 
-          {/* Preparation time */}
           <h4>{t.categories.time}</h4>
           <ul className="recipes__filters--list">
             <li>
@@ -170,7 +157,6 @@ export default function RecipesPage({ lang }: Props) {
             </li>
           </ul>
 
-          {/* Rating */}
           <h4>{t.categories.score}</h4>
           <ul className="recipes__filters--list">
             <li>

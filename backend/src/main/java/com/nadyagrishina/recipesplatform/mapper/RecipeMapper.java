@@ -11,11 +11,12 @@ public class RecipeMapper {
     public Recipe toEntity(RecipeRequestDTO dto) {
         if (dto == null) return null;
 
-        Recipe recipe = Recipe.builder()
+        return Recipe.builder()
                 .name(dto.getName())
                 .description(dto.getDescription())
+                .preparationTimeMinutes(dto.getPreparationTimeMinutes())
+                .servings(dto.getServings())
                 .build();
-        return recipe;
     }
 
     public RecipeResponseDTO toDto(Recipe entity) {
@@ -25,6 +26,8 @@ public class RecipeMapper {
                 .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
+                .preparationTimeMinutes(entity.getPreparationTimeMinutes())
+                .servings(entity.getServings())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

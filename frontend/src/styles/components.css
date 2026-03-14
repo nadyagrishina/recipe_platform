@@ -73,6 +73,7 @@
   transition: var(--transition-fast);
   cursor: pointer;
   box-shadow: var(--card-shadow);
+  max-height: 350px;
 }
 
 .recipe-card__title {
