@@ -9,12 +9,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserResponseDTO {
-    private Long id;
-    private String username;
-    private String name;
-    private String surname;
-    private String email;
+public class FavoriteResponseDTO {
+    private Long userId;
+    private Long recipeId;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

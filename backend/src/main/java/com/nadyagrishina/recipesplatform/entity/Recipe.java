@@ -52,4 +52,22 @@ public class Recipe extends BaseEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @OneToMany(mappedBy = "recipe")
+    private List<Favorite> favorites = new ArrayList<>();
+
+    @OneToMany(mappedBy = "recipe")
+    private List<Rating> ratings = new ArrayList<>();
+
+    public void addIngredient(Ingredient ingredient) {
+        ingredients.add(ingredient);
+    }
+
+    public void addStep(RecipeStep step) {
+        steps.add(step);
+    }
+
+    public void addImage(RecipeImage image) {
+        images.add(image);
+    }
 }

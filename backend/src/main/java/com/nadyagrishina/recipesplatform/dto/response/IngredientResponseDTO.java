@@ -1,7 +1,9 @@
 package com.nadyagrishina.recipesplatform.dto.response;
 
+import com.nadyagrishina.recipesplatform.entity.Unit;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -9,12 +11,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserResponseDTO {
+public class IngredientResponseDTO {
     private Long id;
-    private String username;
     private String name;
-    private String surname;
-    private String email;
+    private BigDecimal amount;
+    private Unit unit;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

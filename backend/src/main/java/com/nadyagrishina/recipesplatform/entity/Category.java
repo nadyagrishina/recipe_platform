@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Table(name = "categories")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Category extends BaseEntity{
 
     @Setter

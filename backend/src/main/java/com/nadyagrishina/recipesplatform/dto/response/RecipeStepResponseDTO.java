@@ -9,12 +9,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserResponseDTO {
+public class RecipeStepResponseDTO {
     private Long id;
-    private String username;
-    private String name;
-    private String surname;
-    private String email;
+    private Integer stepNumber;
+    private String description;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

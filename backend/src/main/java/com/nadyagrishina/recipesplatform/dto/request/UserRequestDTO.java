@@ -11,6 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class UserRequestDTO {
+
     @NotBlank
     @Size(min = 3, max = 255)
     private String username;
@@ -19,14 +20,14 @@ public class UserRequestDTO {
     @Size(min = 6, max = 255)
     private String password;
 
-    @Size(min = 1, max = 255)
+    @Size(max = 255)
     private String name;
 
-    @Size(min = 1, max = 255)
+    @Size(max = 255)
     private String surname;
 
     @NotBlank
     @Email
-    @Size(min = 3, max = 255)
+    @Size(max = 255)
     private String email;
 }

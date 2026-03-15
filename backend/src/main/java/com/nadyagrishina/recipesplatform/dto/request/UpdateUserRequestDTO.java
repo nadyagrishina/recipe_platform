@@ -1,7 +1,6 @@
 package com.nadyagrishina.recipesplatform.dto.request;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -12,7 +11,6 @@ import lombok.*;
 @Builder
 public class UpdateUserRequestDTO {
 
-    @NotBlank
     @Size(min = 3, max = 255)
     private String username;
 
@@ -25,8 +23,7 @@ public class UpdateUserRequestDTO {
     @Size(max = 255)
     private String surname;
 
-    @NotBlank
     @Email
-    @Size(min = 3, max = 255)
+    @Size(max = 255)
     private String email;
 }
