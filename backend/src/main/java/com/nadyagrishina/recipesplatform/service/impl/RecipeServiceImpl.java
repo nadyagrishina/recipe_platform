@@ -1,117 +1,175 @@
 package com.nadyagrishina.recipesplatform.service.impl;
 
-import com.nadyagrishina.recipesplatform.dto.request.RecipeRequestDTO;
+import com.nadyagrishina.recipesplatform.dto.request.RecipeCreateRequestDTO;
+import com.nadyagrishina.recipesplatform.dto.request.RecipeUpdateRequestDTO;
 import com.nadyagrishina.recipesplatform.dto.response.RecipeResponseDTO;
+import com.nadyagrishina.recipesplatform.dto.response.RecipeSummaryResponseDTO;
+import com.nadyagrishina.recipesplatform.entity.Category;
 import com.nadyagrishina.recipesplatform.entity.Recipe;
 import com.nadyagrishina.recipesplatform.entity.User;
-import com.nadyagrishina.recipesplatform.exception.ForbiddenException;
-import com.nadyagrishina.recipesplatform.exception.NotFoundException;
-import com.nadyagrishina.recipesplatform.exception.ConflictException;
+import com.nadyagrishina.recipesplatform.exception.ResourceNotFoundException;
 import com.nadyagrishina.recipesplatform.mapper.RecipeMapper;
+import com.nadyagrishina.recipesplatform.repository.CategoryRepository;
+import com.nadyagrishina.recipesplatform.repository.FavoriteRepository;
+import com.nadyagrishina.recipesplatform.repository.RatingRepository;
 import com.nadyagrishina.recipesplatform.repository.RecipeRepository;
 import com.nadyagrishina.recipesplatform.repository.UserRepository;
 import com.nadyagrishina.recipesplatform.service.RecipeService;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Slf4j
-@RequiredArgsConstructor
 @Service
+@Transactional
 public class RecipeServiceImpl implements RecipeService {
 
     private final RecipeRepository recipeRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
+    private final FavoriteRepository favoriteRepository;
+    private final RatingRepository ratingRepository;
     private final RecipeMapper recipeMapper;
 
-    @Override
-    public List<RecipeResponseDTO> getAllRecipes() {
-        log.info("Fetching all recipes");
-        return recipeRepository.findAll()
-                .stream()
-                .map(recipeMapper::toDto)
-                .toList();
+    public RecipeServiceImpl(RecipeRepository recipeRepository,
+                             UserRepository userRepository,
+                             CategoryRepository categoryRepository,
+                             FavoriteRepository favoriteRepository,
+                             RatingRepository ratingRepository,
+                             RecipeMapper recipeMapper) {
+        this.recipeRepository = recipeRepository;
+        this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
+        this.favoriteRepository = favoriteRepository;
+        this.ratingRepository = ratingRepository;
+        this.recipeMapper = recipeMapper;
     }
 
     @Override
-    public RecipeResponseDTO getRecipeById(Long id) {
-        log.info("Fetching recipe {}", id);
-        return recipeMapper.toDto(findRecipeById(id));
-    }
+    public RecipeResponseDTO createRecipe(RecipeCreateRequestDTO dto, String currentUsername) {
+        User author = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + currentUsername));
 
-    @Override
-    public List<RecipeResponseDTO> getMyRecipes(String email) {
-        log.info("Fetching recipes for current user {}", email);
-        return recipeRepository.findAllByAuthorEmail(email)
-                .stream()
-                .map(recipeMapper::toDto)
-                .toList();
-    }
+        Category category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + dto.getCategoryId()));
 
-    @Transactional
-    @Override
-    public RecipeResponseDTO createRecipe(RecipeRequestDTO request, String email) {
-        log.info("Creating recipe for user {}", email);
-
-        User author = findUserByEmail(email);
-
-        Recipe recipe = recipeMapper.toEntity(request);
-        recipe.setAuthor(author);
-
-        applyRecipeFields(recipe, request);
-
+        Recipe recipe = recipeMapper.toEntity(dto, author, category);
         Recipe savedRecipe = recipeRepository.save(recipe);
-        return recipeMapper.toDto(savedRecipe);
+
+        return recipeMapper.toResponseDTO(savedRecipe, 0.0, 0, false);
     }
 
-    @Transactional
     @Override
-    public RecipeResponseDTO updateRecipe(Long id, RecipeRequestDTO request, String email) {
-        log.info("Updating recipe {} for user {}", id, email);
+    public List<RecipeSummaryResponseDTO> getAllRecipes(String currentUsername) {
+        Long currentUserId = getCurrentUserIdOrNull(currentUsername);
 
-        Recipe recipe = findRecipeById(id);
-        validateOwnership(recipe, email);
+        return recipeRepository.findAll().stream()
+                .map(recipe -> {
+                    Double averageRating = ratingRepository.findAverageScoreByRecipeId(recipe.getId());
+                    int favoritesCount = favoriteRepository.countByRecipeId(recipe.getId());
+                    boolean favorite = currentUserId != null
+                            && favoriteRepository.existsByUserIdAndRecipeId(currentUserId, recipe.getId());
 
-        applyRecipeFields(recipe, request);
+                    return recipeMapper.toSummaryResponseDTO(
+                            recipe,
+                            averageRating != null ? averageRating : 0.0,
+                            favoritesCount,
+                            favorite
+                    );
+                })
+                .toList();
+    }
 
+    @Override
+    public RecipeResponseDTO getRecipeById(Long id, String currentUsername) {
+        Recipe recipe = recipeRepository.findDetailedById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Recipe not found: " + id));
+
+        Double averageRating = ratingRepository.findAverageScoreByRecipeId(recipe.getId());
+        int favoritesCount = favoriteRepository.countByRecipeId(recipe.getId());
+
+        Long currentUserId = getCurrentUserIdOrNull(currentUsername);
+        boolean favorite = currentUserId != null
+                && favoriteRepository.existsByUserIdAndRecipeId(currentUserId, recipe.getId());
+
+        return recipeMapper.toResponseDTO(
+                recipe,
+                averageRating != null ? averageRating : 0.0,
+                favoritesCount,
+                favorite
+        );
+    }
+
+    @Override
+    public RecipeResponseDTO updateRecipe(Long recipeId, RecipeUpdateRequestDTO dto, String currentUsername) {
+        Recipe recipe = recipeRepository.findDetailedById(recipeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Recipe not found: " + recipeId));
+
+        if (!recipe.getAuthor().getUsername().equals(currentUsername)) {
+            throw new IllegalArgumentException("You can update only your own recipes");
+        }
+
+        Category category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + dto.getCategoryId()));
+
+        recipeMapper.updateEntity(recipe, dto, category);
         Recipe updatedRecipe = recipeRepository.save(recipe);
-        return recipeMapper.toDto(updatedRecipe);
+
+        Double averageRating = ratingRepository.findAverageScoreByRecipeId(updatedRecipe.getId());
+        int favoritesCount = favoriteRepository.countByRecipeId(updatedRecipe.getId());
+
+        Long currentUserId = getCurrentUserIdOrNull(currentUsername);
+        boolean favorite = currentUserId != null
+                && favoriteRepository.existsByUserIdAndRecipeId(currentUserId, updatedRecipe.getId());
+
+        return recipeMapper.toResponseDTO(
+                updatedRecipe,
+                averageRating != null ? averageRating : 0.0,
+                favoritesCount,
+                favorite
+        );
     }
 
-    @Transactional
     @Override
-    public void deleteRecipe(Long id, String email) {
-        log.info("Deleting recipe {} for user {}", id, email);
+    public void deleteRecipe(Long recipeId, String currentUsername) {
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Recipe not found: " + recipeId));
 
-        Recipe recipe = findRecipeById(id);
-        validateOwnership(recipe, email);
+        if (!recipe.getAuthor().getUsername().equals(currentUsername)) {
+            throw new IllegalArgumentException("You can delete only your own recipes");
+        }
 
         recipeRepository.delete(recipe);
     }
 
-    private Recipe findRecipeById(Long id) {
-        return recipeRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Recipe with id: " + id + " not found"));
-    }
-
-    private User findUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("User with email: " + email + " not found"));
-    }
-
-    private void validateOwnership(Recipe recipe, String email) {
-        if (!recipe.getAuthor().getEmail().equals(email)) {
-            throw new ForbiddenException("You can modify only your own recipes.");
+    private Long getCurrentUserIdOrNull(String currentUsername) {
+        if (currentUsername == null || currentUsername.isBlank()) {
+            return null;
         }
+
+        return userRepository.findByUsername(currentUsername)
+                .map(User::getId)
+                .orElse(null);
     }
 
-    private void applyRecipeFields(Recipe recipe, RecipeRequestDTO request) {
-        recipe.setName(request.getName());
-        recipe.setDescription(request.getDescription());
-        recipe.setPreparationTimeMinutes(request.getPreparationTimeMinutes());
-        recipe.setServings(request.getServings());
+    @Override
+    public List<RecipeSummaryResponseDTO> searchRecipes(String query, String currentUsername) {
+        Long currentUserId = getCurrentUserIdOrNull(currentUsername);
+
+        return recipeRepository.searchByName(query).stream()
+                .map(recipe -> {
+                    Double averageRating = ratingRepository.findAverageScoreByRecipeId(recipe.getId());
+                    int favoritesCount = favoriteRepository.countByRecipeId(recipe.getId());
+                    boolean favorite = currentUserId != null
+                            && favoriteRepository.existsByUserIdAndRecipeId(currentUserId, recipe.getId());
+
+                    return recipeMapper.toSummaryResponseDTO(
+                            recipe,
+                            averageRating != null ? averageRating : 0.0,
+                            favoritesCount,
+                            favorite
+                    );
+                })
+                .toList();
     }
 }

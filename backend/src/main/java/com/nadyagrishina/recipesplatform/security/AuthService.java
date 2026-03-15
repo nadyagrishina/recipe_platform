@@ -47,7 +47,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .token(jwt)
                 .expiresIn(jwtService.getJwtExpiration())
-                .user(userMapper.toDto(savedUser))
+                .user(userMapper.toResponseDTO(savedUser))
                 .build();
     }
 
@@ -67,7 +67,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .token(jwt)
                 .expiresIn(jwtService.getJwtExpiration())
-                .user(userMapper.toDto(user))
+                .user(userMapper.toResponseDTO(user))
                 .build();
     }
 }

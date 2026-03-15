@@ -23,6 +23,7 @@ public class RecipeSummaryResponseDTO {
     private Double averageRating;
     private Integer ratingsCount;
     private Integer favoritesCount;
+    private Boolean favorite;
 
     private LocalDateTime createdAt;
 }

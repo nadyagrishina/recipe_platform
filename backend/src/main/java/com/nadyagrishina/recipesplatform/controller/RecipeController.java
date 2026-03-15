@@ -1,59 +1,72 @@
 package com.nadyagrishina.recipesplatform.controller;
 
-import com.nadyagrishina.recipesplatform.dto.request.RecipeRequestDTO;
+import com.nadyagrishina.recipesplatform.dto.request.RecipeCreateRequestDTO;
+import com.nadyagrishina.recipesplatform.dto.request.RecipeUpdateRequestDTO;
 import com.nadyagrishina.recipesplatform.dto.response.RecipeResponseDTO;
+import com.nadyagrishina.recipesplatform.dto.response.RecipeSummaryResponseDTO;
 import com.nadyagrishina.recipesplatform.service.RecipeService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/recipes")
 public class RecipeController {
 
     private final RecipeService recipeService;
 
-    @GetMapping
-    public List<RecipeResponseDTO> getAllRecipes() {
-        return recipeService.getAllRecipes();
+    public RecipeController(RecipeService recipeService) {
+        this.recipeService = recipeService;
     }
 
-    @GetMapping("/me")
-    public List<RecipeResponseDTO> getMyRecipes(Authentication authentication) {
-        return recipeService.getMyRecipes(authentication.getName());
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public RecipeResponseDTO createRecipe(@Valid @RequestBody RecipeCreateRequestDTO dto,
+                                          @AuthenticationPrincipal UserDetails userDetails) {
+        return recipeService.createRecipe(dto, userDetails.getUsername());
+    }
+
+    @GetMapping
+    public List<RecipeSummaryResponseDTO> getAllRecipes(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String currentUsername = userDetails != null ? userDetails.getUsername() : null;
+        return recipeService.getAllRecipes(currentUsername);
     }
 
     @GetMapping("/{id}")
-    public RecipeResponseDTO getRecipeById(@PathVariable Long id) {
-        return recipeService.getRecipeById(id);
+    public RecipeResponseDTO getRecipeById(@PathVariable Long id,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
+        String currentUsername = userDetails != null ? userDetails.getUsername() : null;
+        return recipeService.getRecipeById(id, currentUsername);
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping
-    public RecipeResponseDTO createRecipe(
-            @RequestBody @Valid RecipeRequestDTO request,
-            Authentication authentication
-    ) {
-        return recipeService.createRecipe(request, authentication.getName());
-    }
-
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/{id}")
-    public RecipeResponseDTO updateRecipe(
-            @PathVariable Long id,
-            @RequestBody @Valid RecipeRequestDTO request,
-            Authentication authentication
-    ) {
-        return recipeService.updateRecipe(id, request, authentication.getName());
+    public RecipeResponseDTO updateRecipe(@PathVariable Long id,
+                                          @Valid @RequestBody RecipeUpdateRequestDTO dto,
+                                          @AuthenticationPrincipal UserDetails userDetails) {
+        return recipeService.updateRecipe(id, dto, userDetails.getUsername());
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/{id}")
-    public void deleteRecipe(@PathVariable Long id, Authentication authentication) {
-        recipeService.deleteRecipe(id, authentication.getName());
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRecipe(@PathVariable Long id,
+                             @AuthenticationPrincipal UserDetails userDetails) {
+        recipeService.deleteRecipe(id, userDetails.getUsername());
+    }
+
+    @GetMapping("/search")
+    public List<RecipeSummaryResponseDTO> searchRecipes(@RequestParam String query,
+                                                        @AuthenticationPrincipal UserDetails userDetails) {
+        String currentUsername = userDetails != null ? userDetails.getUsername() : null;
+        return recipeService.searchRecipes(query, currentUsername);
     }
 }

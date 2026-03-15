@@ -5,7 +5,7 @@ import com.nadyagrishina.recipesplatform.dto.request.UserRequestDTO;
 import com.nadyagrishina.recipesplatform.dto.response.UserResponseDTO;
 import com.nadyagrishina.recipesplatform.entity.User;
 import com.nadyagrishina.recipesplatform.exception.ConflictException;
-import com.nadyagrishina.recipesplatform.exception.NotFoundException;
+import com.nadyagrishina.recipesplatform.exception.ResourceNotFoundException;
 import com.nadyagrishina.recipesplatform.mapper.UserMapper;
 import com.nadyagrishina.recipesplatform.repository.UserRepository;
 import com.nadyagrishina.recipesplatform.service.UserService;
@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO getCurrentUser(String username) {
         log.info("Fetching current user by username {}", username);
-        return userMapper.toDto(findUserByUsername(username));
+        return userMapper.toResponseDTO(findUserByUsername(username));
     }
 
     @Transactional
@@ -37,25 +37,41 @@ public class UserServiceImpl implements UserService {
 
         User user = findUserByUsername(username);
 
-        if (!user.getEmail().equals(request.getEmail()) && existsByEmail(request.getEmail())) {
+        if (request.getEmail() != null &&
+                !user.getEmail().equals(request.getEmail()) &&
+                existsByEmail(request.getEmail())) {
             throw new ConflictException("Email already in use.");
         }
 
-        if (!user.getUsername().equals(request.getUsername()) && existsByUsername(request.getUsername())) {
+        if (request.getUsername() != null &&
+                !user.getUsername().equals(request.getUsername()) &&
+                existsByUsername(request.getUsername())) {
             throw new ConflictException("Username already in use.");
         }
 
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setName(request.getName());
-        user.setSurname(request.getSurname());
+        if (request.getUsername() != null) {
+            user.setUsername(request.getUsername());
+        }
+
+        if (request.getEmail() != null) {
+            user.setEmail(request.getEmail());
+        }
+
+        if (request.getName() != null) {
+            user.setName(request.getName());
+        }
+
+        if (request.getSurname() != null) {
+            user.setSurname(request.getSurname());
+        }
 
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             user.changePassword(passwordEncoder.encode(request.getPassword()));
         }
 
         User updatedUser = userRepository.save(user);
-        return userMapper.toDto(updatedUser);
+
+        return userMapper.toResponseDTO(updatedUser);
     }
 
     @Transactional
@@ -83,7 +99,7 @@ public class UserServiceImpl implements UserService {
         user.changePassword(passwordEncoder.encode(request.getPassword()));
 
         User savedUser = userRepository.save(user);
-        return userMapper.toDto(savedUser);
+        return userMapper.toResponseDTO(savedUser);
     }
 
     @Override
@@ -98,6 +114,6 @@ public class UserServiceImpl implements UserService {
 
     private User findUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User with username: " + username + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with username: " + username + " not found"));
     }
 }

@@ -6,10 +6,15 @@ import com.nadyagrishina.recipesplatform.dto.response.UserResponseDTO;
 
 public interface UserService {
 
-    UserResponseDTO getCurrentUser(String email);
-    UserResponseDTO updateCurrentUser(String email, UpdateUserRequestDTO request);
-    void deleteCurrentUser(String email);
+    UserResponseDTO getCurrentUser(String username);
+
+    UserResponseDTO updateCurrentUser(String username, UpdateUserRequestDTO request);
+
+    void deleteCurrentUser(String username);
+
     UserResponseDTO createUser(UserRequestDTO request);
+
     boolean existsByEmail(String email);
+
     boolean existsByUsername(String username);
 }

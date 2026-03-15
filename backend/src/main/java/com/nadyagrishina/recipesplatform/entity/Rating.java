@@ -40,4 +40,8 @@ public class Rating {
         rating.id = new RatingId(user.getId(), recipe.getId());
         return rating;
     }
+
+    public void changeScore(Integer score) {
+        this.score = score;
+    }
 }

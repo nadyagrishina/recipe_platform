@@ -9,13 +9,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
-    public User toEntity(UserRequestDTO dto, String encodedPassword) {
+    public User toEntity(UserRequestDTO dto) {
         return User.builder()
                 .username(dto.getUsername())
                 .email(dto.getEmail())
                 .name(dto.getName())
                 .surname(dto.getSurname())
-                .passwordHash(encodedPassword)
                 .build();
     }
 

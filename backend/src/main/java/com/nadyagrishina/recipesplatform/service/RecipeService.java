@@ -1,21 +1,23 @@
 package com.nadyagrishina.recipesplatform.service;
 
-import com.nadyagrishina.recipesplatform.dto.request.RecipeRequestDTO;
+import com.nadyagrishina.recipesplatform.dto.request.RecipeCreateRequestDTO;
+import com.nadyagrishina.recipesplatform.dto.request.RecipeUpdateRequestDTO;
 import com.nadyagrishina.recipesplatform.dto.response.RecipeResponseDTO;
+import com.nadyagrishina.recipesplatform.dto.response.RecipeSummaryResponseDTO;
 
 import java.util.List;
 
 public interface RecipeService {
 
-    List<RecipeResponseDTO> getAllRecipes();
+    RecipeResponseDTO createRecipe(RecipeCreateRequestDTO dto, String currentUsername);
 
-    RecipeResponseDTO getRecipeById(Long id);
+    List<RecipeSummaryResponseDTO> getAllRecipes(String currentUsername);
 
-    List<RecipeResponseDTO> getMyRecipes(String email);
+    RecipeResponseDTO getRecipeById(Long id, String currentUsername);
 
-    RecipeResponseDTO createRecipe(RecipeRequestDTO request, String email);
+    RecipeResponseDTO updateRecipe(Long recipeId, RecipeUpdateRequestDTO dto, String currentUsername);
 
-    RecipeResponseDTO updateRecipe(Long id, RecipeRequestDTO request, String email);
+    void deleteRecipe(Long recipeId, String currentUsername);
 
-    void deleteRecipe(Long id, String email);
+    List<RecipeSummaryResponseDTO> searchRecipes(String query, String currentUsername);
 }
