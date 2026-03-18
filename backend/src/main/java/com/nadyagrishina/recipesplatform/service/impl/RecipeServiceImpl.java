@@ -15,10 +15,12 @@ import com.nadyagrishina.recipesplatform.repository.RatingRepository;
 import com.nadyagrishina.recipesplatform.repository.RecipeRepository;
 import com.nadyagrishina.recipesplatform.repository.UserRepository;
 import com.nadyagrishina.recipesplatform.service.RecipeService;
+import com.nadyagrishina.recipesplatform.specification.RecipeSpecifications;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -60,24 +62,53 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public List<RecipeSummaryResponseDTO> getAllRecipes(String currentUsername) {
+    public Page<RecipeSummaryResponseDTO> getAllRecipes(Pageable pageable, String currentUsername) {
         Long currentUserId = getCurrentUserIdOrNull(currentUsername);
 
-        return recipeRepository.findAll().stream()
-                .map(recipe -> {
-                    Double averageRating = ratingRepository.findAverageScoreByRecipeId(recipe.getId());
-                    int favoritesCount = favoriteRepository.countByRecipeId(recipe.getId());
-                    boolean favorite = currentUserId != null
-                            && favoriteRepository.existsByUserIdAndRecipeId(currentUserId, recipe.getId());
+        return recipeRepository.findAll(pageable).map(recipe -> {
+            Double avgRating = ratingRepository.findAverageScoreByRecipeId(recipe.getId());
+            int favCount = favoriteRepository.countByRecipeId(recipe.getId());
+            boolean isFav = currentUserId != null
+                    && favoriteRepository.existsByUserIdAndRecipeId(currentUserId, recipe.getId());
 
-                    return recipeMapper.toSummaryResponseDTO(
-                            recipe,
-                            averageRating != null ? averageRating : 0.0,
-                            favoritesCount,
-                            favorite
-                    );
-                })
-                .toList();
+            return recipeMapper.toSummaryResponseDTO(
+                    recipe,
+                    avgRating != null ? avgRating : 0.0,
+                    favCount,
+                    isFav
+            );
+        });
+    }
+
+    @Override
+    public Page<RecipeSummaryResponseDTO> searchRecipes(
+            String query,
+            Long categoryId,
+            Integer maxTime,
+            Double minRating,
+            Pageable pageable,
+            String currentUsername) {
+
+        Long currentUserId = getCurrentUserIdOrNull(currentUsername);
+
+        Specification<Recipe> spec = Specification.where(RecipeSpecifications.hasName(query))
+                .and(RecipeSpecifications.hasCategory(categoryId))
+                .and(RecipeSpecifications.maxPreparationTime(maxTime))
+                .and(RecipeSpecifications.hasMinAverageRating(minRating)); // Используем метод!
+
+        return recipeRepository.findAll(spec, pageable).map(recipe -> {
+            Double avgRating = ratingRepository.findAverageScoreByRecipeId(recipe.getId());
+            int favCount = favoriteRepository.countByRecipeId(recipe.getId());
+            boolean isFav = currentUserId != null
+                    && favoriteRepository.existsByUserIdAndRecipeId(currentUserId, recipe.getId());
+
+            return recipeMapper.toSummaryResponseDTO(
+                    recipe,
+                    avgRating != null ? avgRating : 0.0,
+                    favCount,
+                    isFav
+            );
+        });
     }
 
     @Override
@@ -150,26 +181,5 @@ public class RecipeServiceImpl implements RecipeService {
         return userRepository.findByUsername(currentUsername)
                 .map(User::getId)
                 .orElse(null);
-    }
-
-    @Override
-    public List<RecipeSummaryResponseDTO> searchRecipes(String query, String currentUsername) {
-        Long currentUserId = getCurrentUserIdOrNull(currentUsername);
-
-        return recipeRepository.searchByName(query).stream()
-                .map(recipe -> {
-                    Double averageRating = ratingRepository.findAverageScoreByRecipeId(recipe.getId());
-                    int favoritesCount = favoriteRepository.countByRecipeId(recipe.getId());
-                    boolean favorite = currentUserId != null
-                            && favoriteRepository.existsByUserIdAndRecipeId(currentUserId, recipe.getId());
-
-                    return recipeMapper.toSummaryResponseDTO(
-                            recipe,
-                            averageRating != null ? averageRating : 0.0,
-                            favoritesCount,
-                            favorite
-                    );
-                })
-                .toList();
     }
 }

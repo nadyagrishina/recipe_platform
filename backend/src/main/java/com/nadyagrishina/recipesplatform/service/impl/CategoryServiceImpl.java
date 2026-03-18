@@ -1,25 +1,30 @@
 package com.nadyagrishina.recipesplatform.service.impl;
 
 import com.nadyagrishina.recipesplatform.dto.response.CategoryResponseDTO;
-import com.nadyagrishina.recipesplatform.mapper.CategoryMapper;
 import com.nadyagrishina.recipesplatform.repository.CategoryRepository;
 import com.nadyagrishina.recipesplatform.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final CategoryMapper categoryMapper;
 
     @Override
     public List<CategoryResponseDTO> getAllCategories() {
         return categoryRepository.findAll().stream()
-                .map(categoryMapper::toResponseDTO)
+                .map(category -> CategoryResponseDTO.builder()
+                        .id(category.getId())
+                        .name(category.getName())
+                        .createdAt(category.getCreatedAt())
+                        .updatedAt(category.getUpdatedAt())
+                        .build())
                 .toList();
     }
 }

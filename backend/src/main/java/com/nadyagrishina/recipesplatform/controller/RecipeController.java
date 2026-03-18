@@ -7,12 +7,12 @@ import com.nadyagrishina.recipesplatform.dto.response.RecipeSummaryResponseDTO;
 import com.nadyagrishina.recipesplatform.service.RecipeService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/api/recipes")
@@ -33,11 +33,12 @@ public class RecipeController {
     }
 
     @GetMapping
-    public List<RecipeSummaryResponseDTO> getAllRecipes(
+    public Page<RecipeSummaryResponseDTO> getAllRecipes(
+            Pageable pageable,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         String currentUsername = userDetails != null ? userDetails.getUsername() : null;
-        return recipeService.getAllRecipes(currentUsername);
+        return recipeService.getAllRecipes(pageable, currentUsername);
     }
 
     @GetMapping("/{id}")
@@ -64,9 +65,15 @@ public class RecipeController {
     }
 
     @GetMapping("/search")
-    public List<RecipeSummaryResponseDTO> searchRecipes(@RequestParam String query,
-                                                        @AuthenticationPrincipal UserDetails userDetails) {
+    public Page<RecipeSummaryResponseDTO> searchRecipes(
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Integer maxTime,
+            @RequestParam(required = false) Double minRating, // Новый параметр в URL
+            Pageable pageable,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
         String currentUsername = userDetails != null ? userDetails.getUsername() : null;
-        return recipeService.searchRecipes(query, currentUsername);
+        return recipeService.searchRecipes(query, categoryId, maxTime, minRating, pageable, currentUsername);
     }
 }

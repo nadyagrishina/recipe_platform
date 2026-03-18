@@ -1,41 +1,26 @@
 package com.nadyagrishina.recipesplatform.repository;
 
 import com.nadyagrishina.recipesplatform.entity.Recipe;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.Optional;
 
-public interface RecipeRepository extends JpaRepository<Recipe, Long> {
+public interface RecipeRepository extends JpaRepository<Recipe, Long>, JpaSpecificationExecutor<Recipe> {
+    @Override
+    @EntityGraph(attributePaths = {"author", "category", "ingredients", "steps", "images"})
+    Page<Recipe> findAll(Pageable pageable);
 
     @Override
-    @EntityGraph(attributePaths = {
-            "author",
-            "category",
-            "ingredients",
-            "steps",
-            "images"
-    })
-    List<Recipe> findAll();
+    @EntityGraph(attributePaths = {"author", "category", "ingredients", "steps", "images"})
+    Page<Recipe> findAll(Specification<Recipe> spec, Pageable pageable);
 
     @EntityGraph(attributePaths = {
-            "author",
-            "category",
-            "ingredients",
-            "steps",
-            "images",
-            "comments",
-            "comments.user",
-            "ratings",
-            "favorites"
+            "author", "category", "ingredients", "steps", "images",
+            "comments", "comments.user", "ratings", "favorites"
     })
     Optional<Recipe> findDetailedById(Long id);
-
-    @Query("""
-       select r from Recipe r
-       where lower(r.name) like lower(concat('%', :query, '%'))
-       """)
-    List<Recipe> searchByName(String query);
 }

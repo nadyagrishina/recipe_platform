@@ -3,7 +3,9 @@ package com.nadyagrishina.recipesplatform.controller;
 import com.nadyagrishina.recipesplatform.dto.response.CategoryResponseDTO;
 import com.nadyagrishina.recipesplatform.service.CategoryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
