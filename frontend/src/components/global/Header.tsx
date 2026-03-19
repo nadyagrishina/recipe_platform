@@ -3,6 +3,7 @@ import Navigation from "./Navigation";
 import { TEXTS, type Language } from "../../constants/texts";
 import { Link } from "react-router-dom";
 import LanguageButton from "./LanguageButton";
+import { useAuth } from "../../context/AuthContext";
 
 type Props = {
   lang: Language;
@@ -11,8 +12,7 @@ type Props = {
 
 export default function Header({ lang, setLang }: Props) {
   const t = TEXTS[lang];
-
-  const token = localStorage.getItem("token");
+  const { user } = useAuth();
 
   return (
     <header className="header">
@@ -22,11 +22,8 @@ export default function Header({ lang, setLang }: Props) {
         <div className="header__buttons">
           <LanguageButton lang={lang} setLang={setLang} />
 
-          {token ? (
-            <Link
-              className="header__button header__button--profile"
-              to="/profile"
-            >
+          {user ? (
+            <Link className="header__button header__button--profile" to="/profile">
               {t.header.profileButton}
             </Link>
           ) : (
@@ -36,7 +33,6 @@ export default function Header({ lang, setLang }: Props) {
           )}
         </div>
       </div>
-
       <Navigation lang={lang} />
     </header>
   );

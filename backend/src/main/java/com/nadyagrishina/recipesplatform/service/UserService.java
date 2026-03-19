@@ -12,8 +12,6 @@ public interface UserService {
 
     void deleteCurrentUser(String username);
 
-    UserResponseDTO createUser(UserRequestDTO request);
-
     boolean existsByEmail(String email);
 
     boolean existsByUsername(String username);

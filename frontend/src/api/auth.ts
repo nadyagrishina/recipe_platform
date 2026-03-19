@@ -1,21 +1,4 @@
-import axios from "axios";
-
-export const api = axios.create({
-  baseURL: "http://localhost:8080",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-});
+import api from "./axios";
 
 export type LoginRequest = {
   username: string;
@@ -28,16 +11,17 @@ export type RegisterRequest = {
   password: string;
 };
 
-export type LoginResponse = {
+export type AuthResponse = {
   token: string;
+  user: any;
 };
 
-export async function login(payload: LoginRequest) {
-  const res = await api.post<LoginResponse>("/api/auth/login", payload);
+export const login = async (payload: LoginRequest) => {
+  const res = await api.post<AuthResponse>("/api/auth/login", payload);
   return res.data;
-}
+};
 
-export async function register(payload: RegisterRequest) {
-  const res = await api.post("/api/auth/register", payload);
+export const register = async (payload: RegisterRequest) => {
+  const res = await api.post<AuthResponse>("/api/auth/register", payload);
   return res.data;
-}
+};

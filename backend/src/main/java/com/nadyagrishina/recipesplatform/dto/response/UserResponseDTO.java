@@ -17,4 +17,5 @@ public class UserResponseDTO {
     private String email;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private UserSettingsResponseDTO userSettingsDTO;
 }

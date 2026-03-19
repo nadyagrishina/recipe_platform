@@ -41,6 +41,14 @@ public class RecipeController {
         return recipeService.getAllRecipes(pageable, currentUsername);
     }
 
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/my")
+    public Page<RecipeSummaryResponseDTO> getMyRecipes(
+            Pageable pageable,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return recipeService.getMyRecipes(pageable, userDetails.getUsername());
+    }
+
     @GetMapping("/{id}")
     public RecipeResponseDTO getRecipeById(@PathVariable Long id,
                                            @AuthenticationPrincipal UserDetails userDetails) {
@@ -69,7 +77,7 @@ public class RecipeController {
             @RequestParam(required = false) String query,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Integer maxTime,
-            @RequestParam(required = false) Double minRating, // Новый параметр в URL
+            @RequestParam(required = false) Double minRating,
             Pageable pageable,
             @AuthenticationPrincipal UserDetails userDetails) {
 

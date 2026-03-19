@@ -3,7 +3,10 @@ package com.nadyagrishina.recipesplatform.security;
 import com.nadyagrishina.recipesplatform.dto.auth.AuthRequest;
 import com.nadyagrishina.recipesplatform.dto.auth.AuthResponse;
 import com.nadyagrishina.recipesplatform.dto.auth.RegisterRequest;
+import com.nadyagrishina.recipesplatform.entity.MeasurementUnitSystem;
+import com.nadyagrishina.recipesplatform.entity.Role;
 import com.nadyagrishina.recipesplatform.entity.User;
+import com.nadyagrishina.recipesplatform.entity.UserSettings;
 import com.nadyagrishina.recipesplatform.exception.ConflictException;
 import com.nadyagrishina.recipesplatform.mapper.UserMapper;
 import com.nadyagrishina.recipesplatform.repository.UserRepository;
@@ -35,10 +38,16 @@ public class AuthService {
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
-                .name(request.getName())
-                .surname(request.getSurname())
+                .role(Role.USER)
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .build();
+
+        user.setUserSettings(
+                UserSettings.builder()
+                        .user(user)
+                        .measurementUnitSystem(MeasurementUnitSystem.METRIC)
+                        .build()
+        );
 
         User savedUser = userRepository.save(user);
 

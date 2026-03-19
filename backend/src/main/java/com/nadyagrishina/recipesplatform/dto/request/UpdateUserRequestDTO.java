@@ -17,12 +17,6 @@ public class UpdateUserRequestDTO {
     @Size(min = 6, max = 255)
     private String password;
 
-    @Size(max = 255)
-    private String name;
-
-    @Size(max = 255)
-    private String surname;
-
     @Email
     @Size(max = 255)
     private String email;

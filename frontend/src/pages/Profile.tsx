@@ -1,37 +1,28 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { TEXTS, type Language } from "../constants/texts";
+import { getCurrentUser } from "../api/users";
+import { getFavoriteRecipes, getMyRecipes } from "../api/recipes";
+import { useAuth } from "../context/AuthContext";
+import { getUserSettings } from "../api/users";
+
 
 type Props = {
   lang: Language;
 };
 
-type User = {
-  id: number;
-  username: string;
-  name?: string;
-  surname?: string;
-  email: string;
-  createdAt: string;
-};
-
-type Recipe = {
-  id: number;
-  name: string;
-  description: string;
-  preparationTimeMinutes: number;
-  servings: number;
-  createdAt: string;
-};
-
 export default function Profile({ lang }: Props) {
   const t = TEXTS[lang];
   const navigate = useNavigate();
+  const { logout } = useAuth();
+  const API_URL = "http://localhost:8080";
 
-  const [user, setUser] = useState<User | null>(null);
-  const [myRecipes, setMyRecipes] = useState<Recipe[]>([]);
+  const [user, setUser] = useState<any>(null);
+  const [myRecipes, setMyRecipes] = useState<any[]>([]);
+  const [favoriteRecipes, setFavoriteRecipes] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -46,58 +37,67 @@ export default function Profile({ lang }: Props) {
         setIsLoading(true);
         setError("");
 
-        const [userResponse, recipesResponse] = await Promise.all([
-          fetch("http://localhost:8080/api/users/me", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }),
-          fetch("http://localhost:8080/api/recipes/me", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }),
+        const [userRes, myRecipesRes, favoriteRecipesRes, settingsRes] = await Promise.all([
+          getCurrentUser(),
+          getMyRecipes(0, 50),
+          getFavoriteRecipes(),
+          getUserSettings()
         ]);
 
-        if (userResponse.status === 401 || userResponse.status === 403) {
-          localStorage.removeItem("token");
+        const combinedUser = {
+          ...userRes,
+          name: settingsRes.name,
+          surname: settingsRes.surname,
+          imageUrl: settingsRes.imageUrl,
+          description: settingsRes.description,
+          measurementUnitSystem: settingsRes.measurementUnitSystem
+        };
+
+        setUser(combinedUser);
+
+        const myData = myRecipesRes.data?.content || myRecipesRes.data || [];
+        setMyRecipes(Array.isArray(myData) ? myData : []);
+
+        const favData = favoriteRecipesRes.data?.content || favoriteRecipesRes.data || [];
+        setFavoriteRecipes(Array.isArray(favData) ? favData : []);
+
+      } catch (err: any) {
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          logout();
           navigate("/login");
-          return;
+        } else {
+          setError(t.profile.loadError);
         }
-
-        if (!userResponse.ok) {
-          throw new Error("Failed to load user");
-        }
-
-        if (!recipesResponse.ok) {
-          throw new Error("Failed to load recipes");
-        }
-
-        const userData: User = await userResponse.json();
-        const recipesData: Recipe[] = await recipesResponse.json();
-
-        setUser(userData);
-        setMyRecipes(recipesData);
-      } catch (err) {
-        setError(t.profile.loadError);
       } finally {
         setIsLoading(false);
       }
     }
 
     loadProfile();
-  }, [navigate, t.profile.loadError]);
+  }, [navigate, t.profile.loadError, logout]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    logout();
     navigate("/");
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    const locale = lang === "en" ? "en-US" : "cs-CZ";
+    return new Date(dateString).toLocaleDateString(locale, {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
   };
 
   if (isLoading) {
     return (
       <section className="profile">
-        <h2>{t.profile.title}</h2>
-        <p>{t.profile.loading}</p>
+        <h2 className="profile__title">{t.profile.title}</h2>
+        <p className="profile__loading">{t.profile.loading}</p>
       </section>
     );
   }
@@ -105,40 +105,71 @@ export default function Profile({ lang }: Props) {
   if (error || !user) {
     return (
       <section className="profile">
-        <h2>{t.profile.title}</h2>
-        <p className="auth__error">{error || t.profile.loadError}</p>
+        <h2 className="profile__title">{t.profile.title}</h2>
+        <p className="profile__error">{error || t.profile.loadError}</p>
       </section>
     );
   }
 
-  const fullName =
-    [user.name, user.surname].filter(Boolean).join(" ") || user.username;
+  const fullName = [user.name, user.surname].filter(Boolean).join(" ") || user.username;
 
   return (
     <section className="profile">
-      <h2>{t.profile.title}</h2>
+      <h2 className="profile__title">{t.profile.title}</h2>
 
       <div className="profile__wrapper">
         <div className="profile__main">
           <div className="profile__card">
-            <div className="profile__avatar">
-              <span>👩🏻‍🍳</span>
+            <div className="profile__avatar" onClick={() => user.imageUrl && setIsModalOpen(true)}>
+              {user.imageUrl ? (
+                <img
+                  src={user.imageUrl.startsWith("http") ? user.imageUrl : `${API_URL}${user.imageUrl}`}
+                />
+              ) : (
+                <img
+                  src="/images/default-avatar.png"
+                />
+              )}
             </div>
 
             <div className="profile__info">
               <h3 className="profile__name">{fullName}</h3>
               <p className="profile__email">{user.email}</p>
               <p className="profile__email">@{user.username}</p>
+              {user.createdAt && (
+                <p className="profile__date">
+                  {t.profile.joined}:
+                  <span>{formatDate(user.createdAt)}</span>
+                </p>
+              )}
+
+              {user.updatedAt && (
+                <p className="profile__date">
+                  {t.profile.updated}:
+                  <span>{formatDate(user.updatedAt)}</span>
+                </p>
+              )}
             </div>
           </div>
 
           <div className="profile__section">
             <h3 className="profile__section--title">{t.profile.aboutTitle}</h3>
-            <p className="profile__text">
-              {user.name || user.surname
-                ? `${fullName} · ${user.email}`
-                : t.profile.aboutText}
-            </p>
+            <div className="profile__about-content">
+              {user.description ? (
+                <p className="profile__text profile__text--description">
+                  {user.description}
+                </p>
+              ) : (
+                <p className="profile__text">
+                  {t.profile.aboutText}
+                </p>
+              )}
+              {(user.name || user.surname) && (
+                <p className="profile__text--meta">
+                  {fullName} • {user.email}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="profile__section">
@@ -147,75 +178,39 @@ export default function Profile({ lang }: Props) {
             <div className="profile__stats">
               <div className="profile__stat">
                 <span className="profile__stat--value">{myRecipes.length}</span>
-                <span className="profile__stat--label">
-                  {t.profile.myRecipes}
-                </span>
+                <span className="profile__stat--label">{t.profile.myRecipes}</span>
               </div>
-
               <div className="profile__stat">
-                <span className="profile__stat--value">0</span>
-                <span className="profile__stat--label">
-                  {t.profile.favoriteRecipes}
-                </span>
-              </div>
-
-              <div className="profile__stat">
-                <span className="profile__stat--value">0</span>
-                <span className="profile__stat--label">
-                  {t.profile.savedRecipes}
-                </span>
+                <span className="profile__stat--value">{favoriteRecipes.length}</span>
+                <span className="profile__stat--label">{t.profile.favoriteRecipes}</span>
               </div>
             </div>
-          </div>
-
-          <div className="profile__section">
-            <h3 className="profile__section--title">{t.profile.myRecipes}</h3>
-
-            {myRecipes.length === 0 ? (
-              <p className="profile__text">{t.profile.noRecipes}</p>
-            ) : (
-              <div className="profile__recipes">
-                {myRecipes.slice(0, 3).map((recipe) => (
-                  <div key={recipe.id} className="profile__recipe">
-                    <h4 className="profile__recipe--title">{recipe.name}</h4>
-                    <p className="profile__recipe--text">
-                      {recipe.description}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
 
         <aside className="profile__actions">
           <h3 className="profile__actions--title">{t.profile.actions}</h3>
-
-          <Link to="/profile/edit" className="profile__btn">
-            {t.profile.editProfile}
-          </Link>
-
-          <Link to="/my-recipes" className="profile__btn">
-            {t.profile.myRecipes}
-          </Link>
-
-          <Link to="/favorites" className="profile__btn">
-            {t.profile.favoriteRecipes}
-          </Link>
-
-          <Link to="/settings" className="profile__btn">
+          <Link to="/my-recipes" className="profile__btn">{t.profile.myRecipes}</Link>
+          <Link to="/favorites" className="profile__btn">{t.profile.favoriteRecipes}</Link>
+          <Link to="/settings" className="profile__btn profile__btn--settings">
             {t.profile.settings}
           </Link>
-
-          <button
-            type="button"
-            className="profile__btn profile__btn--logout"
-            onClick={handleLogout}
-          >
+          <button type="button" className="profile__btn profile__btn--logout" onClick={handleLogout}>
             {t.profile.logout}
           </button>
         </aside>
       </div>
+
+      {isModalOpen && (
+        <div className="profile__modal" onClick={() => setIsModalOpen(false)}>
+          <div className="profile__modal-content">
+            <img
+              src={user.imageUrl.startsWith("http") ? user.imageUrl : `${API_URL}${user.imageUrl}`}
+            />
+            <button className="profile__modal-close">✕</button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

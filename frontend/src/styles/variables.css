@@ -33,7 +33,7 @@
   --color-text: #2f3b24;
   --color-text-muted: #4f5c43;
   --color-text-accent: #ed760e;
-    --color-text-accent-hover: #d9640c;
+  --color-text-accent-hover: #d9640c;
   --color-text-inverted: #ffffff;
 
   --color-button-primary: #5a9c72;
@@ -43,6 +43,10 @@
 
   --color-like-active: #e74c3c;
   --color-icon-star: #f7cf4c;
+  --color-cross: #ff4d4d;
+  --color-cross-hover:#cc0000;
+
+  --color-bg-black-opacity: rgba(0, 0, 0, 0.85);
 
   /* ===== Shadows ===== */
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);

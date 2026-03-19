@@ -2,6 +2,7 @@ package com.nadyagrishina.recipesplatform.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -20,6 +21,7 @@ public abstract class BaseEntity {
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @Setter
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

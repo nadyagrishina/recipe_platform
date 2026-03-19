@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import { TEXTS, type Language } from "../constants/texts";
 import { RecipeCard } from "../components/recipes/RecipeCard";
-import type {
-  RecipeApiResponse,
-  RecipeCardData,
-} from "../components/models/recipe";
+import api from "../api/axios";
 
 type Props = {
   lang: Language;
@@ -13,45 +10,39 @@ type Props = {
 export default function RecipesPage({ lang }: Props) {
   const t = TEXTS[lang];
 
-  const [recipes, setRecipes] = useState<RecipeCardData[]>([]);
+  const [recipes, setRecipes] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadRecipes() {
-      try {
-        setLoading(true);
-        setError(null);
+  const loadRecipes = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        const response = await fetch("http://localhost:8080/api/recipes");
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch recipes: ${response.status}`);
+      const response = await api.get("/api/recipes", {
+        params: {
+          page: 0,
+          size: 12
         }
-
-        const data: RecipeApiResponse[] = await response.json();
-
-        const mappedRecipes: RecipeCardData[] = data.map((recipe) => ({
-          id: recipe.id,
-          title: recipe.name,
-          time: recipe.preparationTimeMinutes,
-        }));
-
-        setRecipes(mappedRecipes);
-      } catch (err) {
-        console.error("Failed to load recipes", err);
-        setError("Failed to load recipes");
-      } finally {
-        setLoading(false);
-      }
+      });
+      
+      const data = response.data?.content || response.data || [];
+      setRecipes(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setError(t.profile.loadError);
+    } finally {
+      setLoading(false);
     }
+  };
 
+  useEffect(() => {
     loadRecipes();
   }, []);
 
   return (
     <section className="recipes">
-      <h2>{t.categories.title}</h2>
+      <h2 className="recipes__title">{t.categories.title}</h2>
 
       <div className="recipes__wrapper">
         <div className="recipes__main">
@@ -174,10 +165,10 @@ export default function RecipesPage({ lang }: Props) {
           </ul>
 
           <div className="recipes__buttons">
-            <button className="recipes__filters--apply">
+            <button className="recipes__filters--apply" onClick={loadRecipes}>
               {t.categories.applyFilters}
             </button>
-            <button className="recipes__filters--clear">
+            <button className="recipes__filters--clear" onClick={() => window.location.reload()}>
               {t.categories.clearFilters}
             </button>
           </div>

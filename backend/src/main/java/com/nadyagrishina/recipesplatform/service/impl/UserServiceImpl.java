@@ -57,14 +57,6 @@ public class UserServiceImpl implements UserService {
             user.setEmail(request.getEmail());
         }
 
-        if (request.getName() != null) {
-            user.setName(request.getName());
-        }
-
-        if (request.getSurname() != null) {
-            user.setSurname(request.getSurname());
-        }
-
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             user.changePassword(passwordEncoder.encode(request.getPassword()));
         }
@@ -80,26 +72,6 @@ public class UserServiceImpl implements UserService {
         log.info("Deleting current user by username {}", username);
         User user = findUserByUsername(username);
         userRepository.delete(user);
-    }
-
-    @Transactional
-    @Override
-    public UserResponseDTO createUser(UserRequestDTO request) {
-        if (existsByEmail(request.getEmail())) {
-            throw new ConflictException("Email already in use.");
-        }
-
-        if (existsByUsername(request.getUsername())) {
-            throw new ConflictException("Username already in use.");
-        }
-
-        log.info("Creating new user {}", request.getUsername());
-
-        User user = userMapper.toEntity(request);
-        user.changePassword(passwordEncoder.encode(request.getPassword()));
-
-        User savedUser = userRepository.save(user);
-        return userMapper.toResponseDTO(savedUser);
     }
 
     @Override

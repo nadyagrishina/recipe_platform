@@ -20,4 +20,6 @@ public interface RecipeService {
     void deleteRecipe(Long recipeId, String currentUsername);
 
     Page<RecipeSummaryResponseDTO> searchRecipes(String query, Long categoryId, Integer maxTime, Double minRating, Pageable pageable, String currentUsername);
+
+    Page<RecipeSummaryResponseDTO> getMyRecipes(Pageable pageable, String username);
 }

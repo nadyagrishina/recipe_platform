@@ -10,17 +10,14 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.Optional;
 
 public interface RecipeRepository extends JpaRepository<Recipe, Long>, JpaSpecificationExecutor<Recipe> {
-    @Override
-    @EntityGraph(attributePaths = {"author", "category", "ingredients", "steps", "images"})
-    Page<Recipe> findAll(Pageable pageable);
 
     @Override
-    @EntityGraph(attributePaths = {"author", "category", "ingredients", "steps", "images"})
+    @EntityGraph(attributePaths = {"author", "category", "images"})
     Page<Recipe> findAll(Specification<Recipe> spec, Pageable pageable);
 
-    @EntityGraph(attributePaths = {
-            "author", "category", "ingredients", "steps", "images",
-            "comments", "comments.user", "ratings", "favorites"
-    })
+    @EntityGraph(attributePaths = {"author", "category", "images"})
     Optional<Recipe> findDetailedById(Long id);
+
+    @EntityGraph(attributePaths = {"author", "category", "images"})
+    Page<Recipe> findAllByAuthorUsername(String username, Pageable pageable);
 }

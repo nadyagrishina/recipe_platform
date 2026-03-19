@@ -25,7 +25,7 @@
   font-weight: var(--font-bold);
 }
 
-.header__button--login {
+.header__button--login, .header__button--profile {
   background-color: var(--color-button-primary);
   color: var(--color-text-inverted);
   padding: var(--space-xs) var(--space-lg);
@@ -34,7 +34,7 @@
   text-align: center;
 }
 
-.header__button--login:hover {
+.header__button--login:hover, .header__button--profile:hover {
   background-color: var(--color-button-primary-hover);
   transform: var(--hover-lift-sm);
 }

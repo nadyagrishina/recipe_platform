@@ -20,7 +20,7 @@ public class FavoriteController {
     private final FavoriteService favoriteService;
 
     @PostMapping("/recipes/{recipeId}/favorite")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public FavoriteResponseDTO addToFavorites(@PathVariable Long recipeId,
                                               Authentication authentication) {
         return favoriteService.addToFavorites(recipeId, authentication.getName());

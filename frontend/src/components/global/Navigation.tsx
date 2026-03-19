@@ -7,6 +7,7 @@ type Props = {
 
 export default function Navigation({ lang }: Props) {
   const t = TEXTS[lang];
+  const isAuthenticated = !!localStorage.getItem("token");
 
   return (
     <nav className="nav">
@@ -18,17 +19,21 @@ export default function Navigation({ lang }: Props) {
         {t.navigation.categories}
       </NavLink>
 
-      <NavLink to="/recipes/new" className="nav__link">
-        {t.navigation.create}
-      </NavLink>
+      {isAuthenticated && (
+        <>
+          <NavLink to="/recipes/new" className="nav__link">
+            {t.navigation.create}
+          </NavLink>
 
-      <NavLink to="/favorites" className="nav__link">
-        {t.navigation.favorites}
-      </NavLink>
+          <NavLink to="/favorites" className="nav__link">
+            {t.navigation.favorites}
+          </NavLink>
 
-      <NavLink to="/my-recipes" className="nav__link">
-        {t.navigation.my}
-      </NavLink>
+          <NavLink to="/my-recipes" className="nav__link">
+            {t.navigation.my}
+          </NavLink>
+        </>
+      )}
     </nav>
   );
 }

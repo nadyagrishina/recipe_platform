@@ -5,6 +5,7 @@ import com.nadyagrishina.recipesplatform.dto.request.RecipeUpdateRequestDTO;
 import com.nadyagrishina.recipesplatform.dto.response.RecipeResponseDTO;
 import com.nadyagrishina.recipesplatform.dto.response.RecipeSummaryResponseDTO;
 import com.nadyagrishina.recipesplatform.entity.Category;
+import com.nadyagrishina.recipesplatform.entity.Favorite;
 import com.nadyagrishina.recipesplatform.entity.Recipe;
 import com.nadyagrishina.recipesplatform.entity.User;
 import com.nadyagrishina.recipesplatform.exception.ResourceNotFoundException;
@@ -182,4 +183,18 @@ public class RecipeServiceImpl implements RecipeService {
                 .map(User::getId)
                 .orElse(null);
     }
+
+    public Page<RecipeSummaryResponseDTO> getMyRecipes(Pageable pageable, String username) {
+        Page<Recipe> recipes = recipeRepository.findAllByAuthorUsername(username, pageable);
+
+        return recipes.map(recipe -> {
+            RecipeSummaryResponseDTO dto = new RecipeSummaryResponseDTO();
+            dto.setId(recipe.getId());
+            dto.setName(recipe.getName());
+            dto.setDescription(recipe.getDescription());
+            dto.setPreparationTimeMinutes(recipe.getPreparationTimeMinutes());
+            return dto;
+        });
+    }
+
 }

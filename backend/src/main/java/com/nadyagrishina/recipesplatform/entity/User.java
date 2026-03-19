@@ -25,12 +25,6 @@ public class User extends BaseEntity implements UserDetails {
     private String passwordHash;
 
     @Setter
-    private String name;
-
-    @Setter
-    private String surname;
-
-    @Setter
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -49,6 +43,10 @@ public class User extends BaseEntity implements UserDetails {
 
     @OneToMany(mappedBy = "user")
     private List<Rating> ratings = new ArrayList<>();
+
+    @Setter
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserSettings userSettings;
 
     public void changePassword(String hashedPassword){
         this.passwordHash = hashedPassword;

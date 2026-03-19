@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { TEXTS, type Language } from "../constants/texts";
-import { register, login } from "../api/auth";
-import { getUserByUsername } from "../api/users";
+import { register } from "../api/auth";
+import { useAuth } from "../context/AuthContext";
 
 type Props = { lang: Language };
 
 export default function RegisterPage({ lang }: Props) {
-  const t = TEXTS[lang];
+  const t = TEXTS[lang].auth.register;
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -17,93 +18,102 @@ export default function RegisterPage({ lang }: Props) {
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-      const { token } = await register({ email, username, password });
-      localStorage.setItem("token", token);
+  try {
+    const data = await register({ email, username, password });
+    
+    if (data && data.token) {
+      await login(data.token);
       navigate("/profile");
-    } catch (err) {
-      console.error(err);
-      setError(t.auth.register.errorGeneric);
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
     }
-  };
+  } catch (err: any) {
+    console.error("Full error object:", err);
+
+    if (err.response.status === 409) setError("Email already exists");
+    
+    if (err.response) {
+      setError(err.response.status === 403 
+        ? "Server forbidden (403)" 
+        : t.errorGeneric);
+    } else {
+      setError("Network error: Server is unreachable");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <section className="auth auth--register">
       <div className="auth__container">
         <div className="auth__card">
-          <h2 className="auth__title">{t.auth.register.title}</h2>
+          <h2 className="auth__title">{t.title}</h2>
 
           <form className="auth__form" onSubmit={handleRegister}>
             <div className="auth__field">
               <label htmlFor="email" className="auth__label">
-                {t.auth.register.emailLabel}
+                {t.emailLabel}
               </label>
               <input
-                type="text"
+                type="email"
                 id="email"
+                className="auth__input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="auth__input"
-                placeholder={t.auth.register.emailPlaceholder}
+                placeholder={t.emailPlaceholder}
                 required
-                autoComplete="email"
               />
             </div>
 
             <div className="auth__field">
               <label htmlFor="username" className="auth__label">
-                {t.auth.register.usernameLabel}
+                {t.usernameLabel}
               </label>
               <input
                 type="text"
                 id="username"
+                className="auth__input"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="auth__input"
-                placeholder={t.auth.register.usernamePlaceholder}
+                placeholder={t.usernamePlaceholder}
                 required
-                autoComplete="username"
               />
             </div>
 
             <div className="auth__field">
               <label htmlFor="password" className="auth__label">
-                {t.auth.register.passwordLabel}
+                {t.passwordLabel}
               </label>
               <input
                 type="password"
                 id="password"
+                className="auth__input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="auth__input"
-                placeholder={t.auth.register.passwordPlaceholder}
+                placeholder={t.passwordPlaceholder}
                 required
                 minLength={8}
-                autoComplete="new-password"
               />
             </div>
 
             <button
               type="submit"
               className="auth__submit"
-              disabled={!username || !password || password.length < 8 || loading}
+              disabled={loading}
             >
-              {loading ? t.auth.register.loading : t.auth.register.submit}
+              {loading ? t.loading : t.submit}
             </button>
           </form>
 
           {error && <div className="auth__error">{error}</div>}
 
           <div className="auth__footer">
-            <span>{t.auth.register.haveAccount}</span>{" "}
+            <span>{t.haveAccount}</span>{" "}
             <Link to="/login" className="auth__link">
-              {t.auth.register.goLogin}
+              {t.goLogin}
             </Link>
           </div>
         </div>

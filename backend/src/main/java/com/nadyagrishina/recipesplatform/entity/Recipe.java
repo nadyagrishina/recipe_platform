@@ -2,6 +2,8 @@ package com.nadyagrishina.recipesplatform.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +14,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Recipe extends BaseEntity{
+public class Recipe extends BaseEntity {
 
     @Setter
     @Column(nullable = false)
@@ -36,16 +38,20 @@ public class Recipe extends BaseEntity{
     private Integer servings;
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
     private List<Ingredient> ingredients = new ArrayList<>();
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("stepNumber ASC")
+    @Fetch(FetchMode.SUBSELECT)
     private List<RecipeStep> steps = new ArrayList<>();
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
     private List<RecipeImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "recipe")
+    @Fetch(FetchMode.SUBSELECT)
     private List<Comment> comments = new ArrayList<>();
 
     @Setter
@@ -54,9 +60,11 @@ public class Recipe extends BaseEntity{
     private Category category;
 
     @OneToMany(mappedBy = "recipe")
+    @Fetch(FetchMode.SUBSELECT)
     private List<Favorite> favorites = new ArrayList<>();
 
     @OneToMany(mappedBy = "recipe")
+    @Fetch(FetchMode.SUBSELECT)
     private List<Rating> ratings = new ArrayList<>();
 
     public void addIngredient(Ingredient ingredient) {
