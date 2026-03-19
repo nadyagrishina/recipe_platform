@@ -2,6 +2,7 @@ package com.nadyagrishina.recipesplatform.service.impl;
 
 import com.nadyagrishina.recipesplatform.dto.request.RecipeCreateRequestDTO;
 import com.nadyagrishina.recipesplatform.dto.request.RecipeUpdateRequestDTO;
+import com.nadyagrishina.recipesplatform.dto.response.RecipeImageResponseDTO;
 import com.nadyagrishina.recipesplatform.dto.response.RecipeResponseDTO;
 import com.nadyagrishina.recipesplatform.dto.response.RecipeSummaryResponseDTO;
 import com.nadyagrishina.recipesplatform.entity.Category;
@@ -22,6 +23,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -184,17 +193,51 @@ public class RecipeServiceImpl implements RecipeService {
                 .orElse(null);
     }
 
+    @Override
     public Page<RecipeSummaryResponseDTO> getMyRecipes(Pageable pageable, String username) {
+        Long currentUserId = getCurrentUserIdOrNull(username);
+
         Page<Recipe> recipes = recipeRepository.findAllByAuthorUsername(username, pageable);
 
         return recipes.map(recipe -> {
-            RecipeSummaryResponseDTO dto = new RecipeSummaryResponseDTO();
-            dto.setId(recipe.getId());
-            dto.setName(recipe.getName());
-            dto.setDescription(recipe.getDescription());
-            dto.setPreparationTimeMinutes(recipe.getPreparationTimeMinutes());
-            return dto;
+            Double avgRating = ratingRepository.findAverageScoreByRecipeId(recipe.getId());
+            int favCount = favoriteRepository.countByRecipeId(recipe.getId());
+
+            boolean isFav = currentUserId != null
+                    && favoriteRepository.existsByUserIdAndRecipeId(currentUserId, recipe.getId());
+
+            return recipeMapper.toSummaryResponseDTO(
+                    recipe,
+                    avgRating != null ? avgRating : 0.0,
+                    favCount,
+                    isFav
+            );
         });
     }
 
+    @Override
+    public RecipeImageResponseDTO uploadRecipeImage(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty");
+        }
+
+        try {
+            String uploadDir = "uploads/recipes/";
+            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            Path uploadPath = Paths.get(uploadDir);
+
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            return RecipeImageResponseDTO.builder()
+                    .url("/uploads/recipes/" + fileName)
+                    .build();
+        } catch (IOException e) {
+            throw new RuntimeException("Could not store file: " + e.getMessage());
+        }
+    }
 }

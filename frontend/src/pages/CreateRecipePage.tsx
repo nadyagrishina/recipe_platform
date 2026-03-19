@@ -1,8 +1,10 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { RecipeForm } from "../components/recipes/RecipeForm";
 import { TEXTS, type Language } from "../constants/texts";
-import type { RecipeFormData } from "../components/models/recipe";
 import { createRecipe } from "../api/recipes";
-import { useNavigate } from "react-router-dom";
+import { RecipeFormData } from "../types/api";
+import api from "../api/axios";
 
 type Props = {
   lang: Language;
@@ -11,19 +13,51 @@ type Props = {
 export default function CreateRecipePage({ lang }: Props) {
   const t = TEXTS[lang];
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(data: RecipeFormData) {
-    console.log("Create recipe:", data);
-  }
+  const handleSubmit = async (data: RecipeFormData) => {
+    setIsSubmitting(true);
+    try {
+      const uploadedImages = [];
+
+      if (data.images && data.images.length > 0) {
+        for (const file of data.images) {
+          const formData = new FormData();
+          formData.append("file", file);
+          
+          const res = await api.post("/api/recipes/images/upload", formData);
+          uploadedImages.push({ url: res.data.url });
+        }
+      }
+
+      const payload = {
+        name: data.name,
+        description: data.description,
+        preparationTimeMinutes: data.preparationTimeMinutes,
+        servings: data.servings,
+        categoryId: Number(data.categoryId),
+        ingredients: data.ingredients,
+        steps: data.steps,
+        images: uploadedImages
+      };
+
+      await createRecipe(payload);
+      navigate("/my-recipes");
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert(t.profile.loadError || "Error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <section className="create-recipe">
-      <h2>{t.createRecipe.createRecipe}</h2>
-
+      <h2 className="create-recipe__title">{t.createRecipe.createRecipe}</h2>
       <RecipeForm
         lang={lang}
         onSubmit={handleSubmit}
-        submitLabel={t.createRecipe.form.actions.submit}
+        submitLabel={isSubmitting ? "..." : t.createRecipe.form.actions.submit}
       />
     </section>
   );

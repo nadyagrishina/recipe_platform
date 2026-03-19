@@ -42,19 +42,32 @@ public class RecipeMapper {
         Recipe recipe = Recipe.builder()
                 .name(dto.getName())
                 .description(dto.getDescription())
-                .author(author)
                 .preparationTimeMinutes(dto.getPreparationTimeMinutes())
                 .servings(dto.getServings())
+                .author(author)
                 .category(category)
                 .build();
 
-        List<Ingredient> ingredients = ingredientMapper.toEntityList(dto.getIngredients(), recipe);
-        List<RecipeStep> steps = recipeStepMapper.toEntityList(dto.getSteps(), recipe);
-        List<RecipeImage> images = recipeImageMapper.toEntityList(dto.getImages(), recipe);
+        if (dto.getIngredients() != null) {
+            dto.getIngredients().forEach(ingDto -> {
+                Ingredient ingredient = ingredientMapper.toEntity(ingDto, recipe);
+                recipe.addIngredient(ingredient);
+            });
+        }
 
-        recipe.getIngredients().addAll(ingredients);
-        recipe.getSteps().addAll(steps);
-        recipe.getImages().addAll(images);
+        if (dto.getSteps() != null) {
+            dto.getSteps().forEach(stepDto -> {
+                RecipeStep step = recipeStepMapper.toEntity(stepDto, recipe);
+                recipe.addStep(step);
+            });
+        }
+
+        if (dto.getImages() != null) {
+            dto.getImages().forEach(imgDto -> {
+                RecipeImage image = recipeImageMapper.toEntity(imgDto, recipe);
+                recipe.addImage(image);
+            });
+        }
 
         return recipe;
     }
@@ -66,20 +79,23 @@ public class RecipeMapper {
         recipe.setServings(dto.getServings());
         recipe.setCategory(category);
 
-        recipe.getIngredients().clear();
-        recipe.getIngredients().addAll(
-                ingredientMapper.toEntityList(dto.getIngredients(), recipe)
-        );
+        if (dto.getIngredients() != null) {
+            recipe.getIngredients().clear();
+            ingredientMapper.toEntityList(dto.getIngredients(), recipe)
+                    .forEach(recipe::addIngredient);
+        }
 
-        recipe.getSteps().clear();
-        recipe.getSteps().addAll(
-                recipeStepMapper.toEntityList(dto.getSteps(), recipe)
-        );
+        if (dto.getSteps() != null) {
+            recipe.getSteps().clear();
+            recipeStepMapper.toEntityList(dto.getSteps(), recipe)
+                    .forEach(recipe::addStep);
+        }
 
-        recipe.getImages().clear();
-        recipe.getImages().addAll(
-                recipeImageMapper.toEntityList(dto.getImages(), recipe)
-        );
+        if (dto.getImages() != null) {
+            recipe.getImages().clear();
+            recipeImageMapper.toEntityList(dto.getImages(), recipe)
+                    .forEach(recipe::addImage);
+        }
     }
 
     public RecipeResponseDTO toResponseDTO(Recipe recipe) {

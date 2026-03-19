@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class Recipe extends BaseEntity {
 
     @Setter
@@ -39,19 +39,23 @@ public class Recipe extends BaseEntity {
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     @Fetch(FetchMode.SUBSELECT)
+    @Builder.Default
     private List<Ingredient> ingredients = new ArrayList<>();
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("stepNumber ASC")
     @Fetch(FetchMode.SUBSELECT)
+    @Builder.Default
     private List<RecipeStep> steps = new ArrayList<>();
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     @Fetch(FetchMode.SUBSELECT)
+    @Builder.Default
     private List<RecipeImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "recipe")
     @Fetch(FetchMode.SUBSELECT)
+    @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
     @Setter
@@ -61,10 +65,12 @@ public class Recipe extends BaseEntity {
 
     @OneToMany(mappedBy = "recipe")
     @Fetch(FetchMode.SUBSELECT)
+    @Builder.Default
     private List<Favorite> favorites = new ArrayList<>();
 
     @OneToMany(mappedBy = "recipe")
     @Fetch(FetchMode.SUBSELECT)
+    @Builder.Default
     private List<Rating> ratings = new ArrayList<>();
 
     public void addIngredient(Ingredient ingredient) {

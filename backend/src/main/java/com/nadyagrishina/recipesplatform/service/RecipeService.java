@@ -2,10 +2,12 @@ package com.nadyagrishina.recipesplatform.service;
 
 import com.nadyagrishina.recipesplatform.dto.request.RecipeCreateRequestDTO;
 import com.nadyagrishina.recipesplatform.dto.request.RecipeUpdateRequestDTO;
+import com.nadyagrishina.recipesplatform.dto.response.RecipeImageResponseDTO;
 import com.nadyagrishina.recipesplatform.dto.response.RecipeResponseDTO;
 import com.nadyagrishina.recipesplatform.dto.response.RecipeSummaryResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface RecipeService {
 
@@ -22,4 +24,6 @@ public interface RecipeService {
     Page<RecipeSummaryResponseDTO> searchRecipes(String query, Long categoryId, Integer maxTime, Double minRating, Pageable pageable, String currentUsername);
 
     Page<RecipeSummaryResponseDTO> getMyRecipes(Pageable pageable, String username);
+
+    RecipeImageResponseDTO uploadRecipeImage(MultipartFile file);
 }

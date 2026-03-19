@@ -4,6 +4,7 @@ import com.nadyagrishina.recipesplatform.entity.Rating;
 import com.nadyagrishina.recipesplatform.entity.RatingId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -15,10 +16,6 @@ public interface RatingRepository extends JpaRepository<Rating, RatingId> {
 
     boolean existsByUserIdAndRecipeId(Long userId, Long recipeId);
 
-    @Query("""
-            select avg(r.score)
-            from Rating r
-            where r.recipe.id = :recipeId
-            """)
-    Double findAverageScoreByRecipeId(Long recipeId);
+    @Query("SELECT AVG(r.score) FROM Rating r WHERE r.recipe.id = :recipeId")
+    Double findAverageScoreByRecipeId(@Param("recipeId") Long recipeId);
 }

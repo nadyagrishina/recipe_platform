@@ -26,6 +26,7 @@ public class RatingServiceImpl implements RatingService {
     private final RatingMapper ratingMapper;
 
     @Override
+    @Transactional
     public RatingResponseDTO rateRecipe(Long recipeId, RatingRequestDTO request, String username) {
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Recipe not found: " + recipeId));
@@ -36,19 +37,7 @@ public class RatingServiceImpl implements RatingService {
         Rating rating = ratingRepository.findByUserIdAndRecipeId(user.getId(), recipeId)
                 .orElseGet(() -> Rating.create(user, recipe, request.getScore()));
 
-        if (ratingRepository.existsByUserIdAndRecipeId(user.getId(), recipeId)) {
-            rating.changeScore(request.getScore());
-        }
-
-        if (ratingRepository.existsByUserIdAndRecipeId(user.getId(), recipeId)) {
-            try {
-                var field = Rating.class.getDeclaredField("score");
-                field.setAccessible(true);
-                field.set(rating, request.getScore());
-            } catch (Exception e) {
-                throw new IllegalStateException("Unable to update rating score", e);
-            }
-        }
+        rating.setScore(request.getScore());
 
         Rating saved = ratingRepository.save(rating);
         return ratingMapper.toResponseDTO(saved);

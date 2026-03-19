@@ -9,11 +9,13 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "ratings")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
 public class Rating {
 
     @EmbeddedId
-    private RatingId id;
+    private RatingId id = new RatingId();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")

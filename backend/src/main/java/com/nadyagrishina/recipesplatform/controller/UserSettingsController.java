@@ -1,10 +1,8 @@
 package com.nadyagrishina.recipesplatform.controller;
 
 import com.nadyagrishina.recipesplatform.dto.request.UserSettingsRequestDTO;
-import com.nadyagrishina.recipesplatform.dto.response.UserResponseDTO;
 import com.nadyagrishina.recipesplatform.dto.response.UserSettingsResponseDTO;
 import com.nadyagrishina.recipesplatform.entity.User;
-import com.nadyagrishina.recipesplatform.service.UserService;
 import com.nadyagrishina.recipesplatform.service.UserSettingsService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserSettingsController {
 
     private final UserSettingsService userSettingsService;
-    private final UserService userService;
 
     @GetMapping("/settings")
     public UserSettingsResponseDTO getUserSettings(Authentication authentication) {

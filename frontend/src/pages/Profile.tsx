@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { TEXTS, type Language } from "../constants/texts";
 import { getCurrentUser } from "../api/users";
-import { getFavoriteRecipes, getMyRecipes } from "../api/recipes";
+import { getFavoriteRecipesCount, getMyRecipesCount } from "../api/recipes";
 import { useAuth } from "../context/AuthContext";
 import { getUserSettings } from "../api/users";
+import { UserDto, UserSettingsDto, CombinedUser } from "../types/api";
 
 
 type Props = {
@@ -17,12 +18,13 @@ export default function Profile({ lang }: Props) {
   const { logout } = useAuth();
   const API_URL = "http://localhost:8080";
 
-  const [user, setUser] = useState<any>(null);
-  const [myRecipes, setMyRecipes] = useState<any[]>([]);
-  const [favoriteRecipes, setFavoriteRecipes] = useState<any[]>([]);
+  const [user, setUser] = useState<CombinedUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [myRecipesCount, setMyRecipesCount] = useState(0);
+  const [favoriteRecipesCount, setFavoriteRecipesCount] = useState(0);
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -39,12 +41,12 @@ export default function Profile({ lang }: Props) {
 
         const [userRes, myRecipesRes, favoriteRecipesRes, settingsRes] = await Promise.all([
           getCurrentUser(),
-          getMyRecipes(0, 50),
-          getFavoriteRecipes(),
+          getMyRecipesCount(0, 50),
+          getFavoriteRecipesCount(),
           getUserSettings()
         ]);
 
-        const combinedUser = {
+        const combinedUser: CombinedUser = {
           ...userRes,
           name: settingsRes.name,
           surname: settingsRes.surname,
@@ -55,11 +57,8 @@ export default function Profile({ lang }: Props) {
 
         setUser(combinedUser);
 
-        const myData = myRecipesRes.data?.content || myRecipesRes.data || [];
-        setMyRecipes(Array.isArray(myData) ? myData : []);
-
-        const favData = favoriteRecipesRes.data?.content || favoriteRecipesRes.data || [];
-        setFavoriteRecipes(Array.isArray(favData) ? favData : []);
+        setMyRecipesCount(myRecipesRes.totalElements || 0);
+        setFavoriteRecipesCount(favoriteRecipesRes.length || 0);
 
       } catch (err: any) {
         if (err.response?.status === 401 || err.response?.status === 403) {
@@ -177,11 +176,11 @@ export default function Profile({ lang }: Props) {
 
             <div className="profile__stats">
               <div className="profile__stat">
-                <span className="profile__stat--value">{myRecipes.length}</span>
+                <span className="profile__stat--value">{myRecipesCount}</span>
                 <span className="profile__stat--label">{t.profile.myRecipes}</span>
               </div>
               <div className="profile__stat">
-                <span className="profile__stat--value">{favoriteRecipes.length}</span>
+                <span className="profile__stat--value">{favoriteRecipesCount}</span>
                 <span className="profile__stat--label">{t.profile.favoriteRecipes}</span>
               </div>
             </div>
@@ -201,7 +200,7 @@ export default function Profile({ lang }: Props) {
         </aside>
       </div>
 
-      {isModalOpen && (
+      {isModalOpen && user.imageUrl && (
         <div className="profile__modal" onClick={() => setIsModalOpen(false)}>
           <div className="profile__modal-content">
             <img

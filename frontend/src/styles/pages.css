@@ -425,7 +425,6 @@
   flex-direction: column;
   gap: var(--space-sm);
 }
-
 .recipe-detail__comments-head {
   display: flex;
   align-items: baseline;
@@ -500,6 +499,18 @@
 
 .recipe-detail__comment-text {
   margin: var(--space-xs) 0 0;
+}
+
+.recipe-detail__comment-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xs);
+}
+
+.recipe-detail__comment-rating {
+  display: flex;
+  gap: var(--space-3xs);
+  margin-bottom: var(--space-2xs);
 }
 
 /* Mobile */

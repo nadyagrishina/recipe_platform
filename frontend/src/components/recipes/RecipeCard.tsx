@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { HeartIcon, TimerIcon, StarIcon } from "../ui/icons";
-import api from "../../api/axios"; // Импортируем напрямую или через методы выше
+import api from "../../api/axios";
+
+const API_URL = "http://localhost:8080";
 
 type Props = {
   recipe: any;
@@ -16,34 +18,43 @@ export function RecipeCard({ recipe }: Props) {
 
     try {
       const url = `/api/recipes/${recipe.id}/favorite`;
-      
       if (isFavorite) {
-        // Если уже в избранном — шлем DELETE
         await api.delete(url);
       } else {
-        // Если еще нет — шлем POST
         await api.post(url);
       }
-      
       setIsFavorite(!isFavorite);
     } catch (err: any) {
-      // Если сервер вернул 409, значит в базе лайк уже есть/нет. 
-      // Синхронизируем стейт с реальностью.
-      if (err.response?.status === 409) {
-        setIsFavorite(!isFavorite);
-      }
       console.error("Favorite toggle error:", err);
     }
   };
 
-  const imageUrl = recipe.previewImageUrl || recipe.images?.[0]?.url || "/images/default-recipe.png";
+  const getImageUrl = () => {
+    const rawPath = recipe.previewImageUrl || recipe.images?.[0]?.url;
+    
+    if (!rawPath) return "/images/default-recipe.png";
+    
+    if (rawPath.startsWith("http")) return rawPath;
+    
+    return `${API_URL}${rawPath}`;
+  };
+
+  const imageUrl = getImageUrl();
   const rating = recipe.averageRating || 0;
   const time = recipe.preparationTimeMinutes || 0;
 
   return (
     <Link to={`/recipes/${recipe.id}`} className="recipe-card recipe-card--link">
       <div className="recipe-card__image">
-        <img className="recipe-card__image--img" src={imageUrl} alt={recipe.name} />
+        <img 
+          className="recipe-card__image--img" 
+          src={imageUrl} 
+          alt={recipe.name}
+          onError={(e) => {
+
+            (e.target as HTMLImageElement).src = "/images/default-recipe.png";
+          }}
+        />
       </div>
 
       <div className="recipe-card__content">

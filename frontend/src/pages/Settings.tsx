@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TEXTS, type Language } from "../constants/texts";
 import { updateUserSettings, getUserSettings } from "../api/users";
+import { UserSettingsDto, MeasurementUnit } from "../types/api"
 import { ArrowBackIcon } from "../components/ui/icons";
 import api from "../api/axios";
 
@@ -15,7 +16,7 @@ export default function Settings({ lang }: Props) {
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(false);
-    const [settingsData, setSettingsData] = useState({
+    const [settingsData, setSettingsData] = useState<UserSettingsDto>({
         name: "",
         surname: "",
         description: "",
@@ -141,7 +142,11 @@ export default function Settings({ lang }: Props) {
                     <h3>{s.preferencesSection}</h3>
                     <div className="settings__field">
                         <label>{s.unitLabel}</label>
-                        <select value={settingsData.measurementUnitSystem} onChange={(e) => setSettingsData({ ...settingsData, measurementUnitSystem: e.target.value })}>
+                        <select value={settingsData.measurementUnitSystem} 
+                        onChange={(e) => setSettingsData({ 
+                            ...settingsData, 
+                            measurementUnitSystem: e.target.value as MeasurementUnit
+                            })}>
                             <option value="METRIC">{s.unitMetric}</option>
                             <option value="IMPERIAL">{s.unitImperial}</option>
                         </select>

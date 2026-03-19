@@ -55,6 +55,7 @@
   --input-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
   /* ===== Spacing ===== */
+  --space-3xs: 2px;
   --space-2xs: 4px;
   --space-xs: 8px;
   --space-sm: 12px;

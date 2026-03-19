@@ -1,4 +1,5 @@
 import api from "./axios";
+import { UserDto } from "../types/api";
 
 export type LoginRequest = {
   username: string;
@@ -13,7 +14,7 @@ export type RegisterRequest = {
 
 export type AuthResponse = {
   token: string;
-  user: any;
+  user: UserDto;
 };
 
 export const login = async (payload: LoginRequest) => {
