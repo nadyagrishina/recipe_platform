@@ -7,11 +7,11 @@ export const getCurrentUser = async () => {
 };
 
 export const getUserSettings = async () => {
-  const res = await api.get<UserSettingsDto>("/api/settings");
+  const res = await api.get<UserSettingsDto>("/api/users/me/settings");
   return res.data;
 };
 
 export const updateUserSettings = async (data: UserSettingsDto) => {
-  const res = await api.put<UserSettingsDto>("/api/settings", data);
+  const res = await api.put<UserSettingsDto>("/api/users/me/settings", data);
   return res.data;
 };

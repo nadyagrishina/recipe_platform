@@ -51,7 +51,6 @@ export function RecipeCard({ recipe }: Props) {
           src={imageUrl} 
           alt={recipe.name}
           onError={(e) => {
-
             (e.target as HTMLImageElement).src = "/images/default-recipe.png";
           }}
         />

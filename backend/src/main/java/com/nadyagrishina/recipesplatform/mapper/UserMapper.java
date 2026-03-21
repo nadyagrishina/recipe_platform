@@ -8,6 +8,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
+    private final UserSettingsMapper userSettingsMapper;
+
+    public UserMapper(UserSettingsMapper userSettingsMapper) {
+        this.userSettingsMapper = userSettingsMapper;
+    }
+
     public User toEntity(UserRequestDTO dto) {
         return User.builder()
                 .username(dto.getUsername())
@@ -26,6 +32,7 @@ public class UserMapper {
                 .email(user.getEmail())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
+                .userSettingsDTO(userSettingsMapper.toResponseDTO(user.getUserSettings()))
                 .build();
     }
 }

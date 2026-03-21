@@ -60,7 +60,7 @@ public class Recipe extends BaseEntity {
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @OneToMany(mappedBy = "recipe")
@@ -75,13 +75,16 @@ public class Recipe extends BaseEntity {
 
     public void addIngredient(Ingredient ingredient) {
         ingredients.add(ingredient);
+        ingredient.setRecipe(this);
     }
 
     public void addStep(RecipeStep step) {
         steps.add(step);
+        step.setRecipe(this);
     }
 
     public void addImage(RecipeImage image) {
         images.add(image);
+        image.setRecipe(this);
     }
 }

@@ -386,17 +386,27 @@
   gap: var(--space-2xs);
 }
 
-.recipe-detail__ingredient{
-  display: flex;
+.recipe-detail__ingredient {
+  display: grid;
+  grid-template-columns: 10px 80px 1fr;
   gap: var(--space-sm);
+  align-items: start;
 }
 
-.recipe-detail__ingredient-amount--wrapper{
-  min-width: 70px;
+.recipe-detail__ingredient-amount--wrapper {
+  width: auto;
+  text-align: left;
+  white-space: nowrap;
 }
 
-.recipe-detail__ingredient-amount,
-.recipe-detail__ingredient-unit {
+.recipe-detail__ingredient-name {
+  min-width: 0;
+  word-break: break-word;
+}
+
+.recipe-detail__unit-amount{
+  display: flex;
+  gap: var(--space-2xs);
   font-weight: var(--font-bold);
 }
 
@@ -472,6 +482,8 @@
 }
 
 .recipe-detail__comment-list {
+  max-height: 400px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);

@@ -24,7 +24,6 @@ public class FavoriteMapper {
         return FavoriteResponseDTO.builder()
                 .userId(favorite.getUser().getId())
                 .recipeId(favorite.getRecipe().getId())
-                .createdAt(favorite.getCreatedAt())
                 .build();
     }
 

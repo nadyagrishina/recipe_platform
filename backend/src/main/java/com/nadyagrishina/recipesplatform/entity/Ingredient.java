@@ -4,19 +4,20 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
 @Entity
-@Table(
-        name = "ingredients",
-        uniqueConstraints = @UniqueConstraint(
-                columnNames = {"recipe_id", "name"}
-        )
-)
+@Table(name = "ingredients")
 @Getter
+@Setter(AccessLevel.PACKAGE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Ingredient extends BaseEntity{
+public class Ingredient {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false)
     private String name;

@@ -4,6 +4,7 @@ import { TEXTS, type Language } from "../constants/texts";
 import { updateUserSettings, getUserSettings } from "../api/users";
 import { UserSettingsDto, MeasurementUnit } from "../types/api"
 import { ArrowBackIcon } from "../components/ui/icons";
+import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
 
 type Props = { lang: Language };
@@ -14,6 +15,7 @@ export default function Settings({ lang }: Props) {
     const t = TEXTS[lang];
     const s = t.settings;
     const navigate = useNavigate();
+    const { refreshUser } = useAuth();
 
     const [loading, setLoading] = useState(false);
     const [settingsData, setSettingsData] = useState<UserSettingsDto>({
@@ -49,7 +51,7 @@ export default function Settings({ lang }: Props) {
         setLoading(true);
         try {
             await updateUserSettings(settingsData);
-            localStorage.setItem("preferredUnit", settingsData.measurementUnitSystem);
+            await refreshUser();
         } catch (err) {
             alert(t.settings.error);
         } finally {
@@ -66,7 +68,7 @@ export default function Settings({ lang }: Props) {
 
         try {
             setLoading(true);
-            const response = await api.post("/api/settings/avatar", formData, {
+            const response = await api.post("/api/users/me/settings/avatar", formData, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
             setSettingsData({ ...settingsData, imageUrl: response.data.imageUrl });
@@ -142,10 +144,10 @@ export default function Settings({ lang }: Props) {
                     <h3>{s.preferencesSection}</h3>
                     <div className="settings__field">
                         <label>{s.unitLabel}</label>
-                        <select value={settingsData.measurementUnitSystem} 
-                        onChange={(e) => setSettingsData({ 
-                            ...settingsData, 
-                            measurementUnitSystem: e.target.value as MeasurementUnit
+                        <select value={settingsData.measurementUnitSystem}
+                            onChange={(e) => setSettingsData({
+                                ...settingsData,
+                                measurementUnitSystem: e.target.value as MeasurementUnit
                             })}>
                             <option value="METRIC">{s.unitMetric}</option>
                             <option value="IMPERIAL">{s.unitImperial}</option>

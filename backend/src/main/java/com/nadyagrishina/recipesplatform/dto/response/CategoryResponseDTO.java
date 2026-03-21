@@ -11,7 +11,5 @@ import java.time.LocalDateTime;
 @Builder
 public class CategoryResponseDTO {
     private Long id;
-    private String name;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String code;
 }

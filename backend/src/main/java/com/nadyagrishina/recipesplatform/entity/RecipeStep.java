@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(
@@ -13,13 +14,18 @@ import lombok.NoArgsConstructor;
         )
 )
 @Getter
+@Setter(AccessLevel.PACKAGE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecipeStep extends BaseEntity{
+public class RecipeStep{
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "step_number", nullable = false)
     private Integer stepNumber;
 
-    @Column(nullable = false, length = 2000)
+    @Column(nullable = false, length = 2000, columnDefinition = "TEXT")
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -27,10 +27,6 @@ public class Favorite {
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
     public static Favorite create(User user, Recipe recipe) {
         Favorite favorite = new Favorite();
         favorite.user = user;

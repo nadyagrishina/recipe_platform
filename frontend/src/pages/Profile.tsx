@@ -41,7 +41,7 @@ export default function Profile({ lang }: Props) {
 
         const [userRes, myRecipesRes, favoriteRecipesRes, settingsRes] = await Promise.all([
           getCurrentUser(),
-          getMyRecipesCount(0, 50),
+          getMyRecipesCount(0, 1),
           getFavoriteRecipesCount(),
           getUserSettings()
         ]);
@@ -57,8 +57,12 @@ export default function Profile({ lang }: Props) {
 
         setUser(combinedUser);
 
-        setMyRecipesCount(myRecipesRes.totalElements || 0);
-        setFavoriteRecipesCount(favoriteRecipesRes.length || 0);
+
+        const myCount = myRecipesRes?.page?.totalElements ?? 0;
+        const favCount = Array.isArray(favoriteRecipesRes) ? favoriteRecipesRes.length : 0;
+
+        setMyRecipesCount(myCount);
+        setFavoriteRecipesCount(favCount);
 
       } catch (err: any) {
         if (err.response?.status === 401 || err.response?.status === 403) {

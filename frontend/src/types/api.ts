@@ -33,13 +33,15 @@ export interface RecipeSummaryDto {
   createdAt: string;
 }
 
-export interface PageRecipeSummaryResponse {
+export type PageRecipeSummaryResponse = {
   content: RecipeSummaryDto[];
-  totalPages: number;
-  totalElements: number;
-  number: number;
-  size: number;
-}
+  page: {
+    number: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+  };
+};
 
 export interface IngredientDto {
   id?: number;
@@ -78,7 +80,20 @@ export interface RecipeResponse {
   updatedAt: string;
 }
 
-export type Unit = "GRAM" | "KILOGRAM" | "MILLILITER" | "LITER" | "TEASPOON" | "TABLESPOON" | "CUP" | "PIECE";
+export type Unit = 
+  | "GRAM" 
+  | "KILOGRAM" 
+  | "MILLILITER" 
+  | "LITER" 
+  | "TEASPOON" 
+  | "TABLESPOON" 
+  | "CUP" 
+  | "PIECE" 
+  | "OZ"
+  | "LB"
+  | "FL_OZ"
+  | "PINCH"       
+  | "TO_TASTE"; 
 
 export interface IngredientFormItem {
   name: string;

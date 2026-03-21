@@ -41,8 +41,6 @@ public class IngredientMapper {
                 .name(ingredient.getName())
                 .amount(ingredient.getAmount())
                 .unit(ingredient.getUnit())
-                .createdAt(ingredient.getCreatedAt())
-                .updatedAt(ingredient.getUpdatedAt())
                 .build();
     }
 

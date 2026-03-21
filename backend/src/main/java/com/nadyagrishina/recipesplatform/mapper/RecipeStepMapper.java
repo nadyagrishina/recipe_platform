@@ -39,8 +39,6 @@ public class RecipeStepMapper {
                 .id(step.getId())
                 .stepNumber(step.getStepNumber())
                 .description(step.getDescription())
-                .createdAt(step.getCreatedAt())
-                .updatedAt(step.getUpdatedAt())
                 .build();
     }
 

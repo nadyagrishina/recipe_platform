@@ -10,12 +10,8 @@ public class CategoryMapper {
 
     public Category toEntity(CategoryRequestDTO dto) {
         Category category = new Category();
-        category.setName(dto.getName());
+        category.setCode(dto.getCode());
         return category;
-    }
-
-    public void updateEntity(Category category, CategoryRequestDTO dto) {
-        category.setName(dto.getName());
     }
 
     public CategoryResponseDTO toResponseDTO(Category category) {
@@ -25,9 +21,7 @@ public class CategoryMapper {
 
         return CategoryResponseDTO.builder()
                 .id(category.getId())
-                .name(category.getName())
-                .createdAt(category.getCreatedAt())
-                .updatedAt(category.getUpdatedAt())
+                .code(category.getCode())
                 .build();
     }
 }

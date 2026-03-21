@@ -8,6 +8,10 @@ public enum Unit {
     TEASPOON,
     TABLESPOON,
     CUP,
-    PIECE
+    PIECE,
+    OZ,
+    LB,
+    FL_OZ,
+    PINCH,
+    TO_TASTE
 }
-

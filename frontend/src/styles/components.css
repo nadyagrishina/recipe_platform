@@ -249,6 +249,7 @@
 
 .create-recipe__textarea--description {
   resize: none;
+  min-height: 100px;
 }
 
 .create-recipe__file-actions {

@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Validated
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users/me")
 public class UserSettingsController {
 
     private final UserSettingsService userSettingsService;

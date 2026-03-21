@@ -12,5 +12,4 @@ import java.time.LocalDateTime;
 public class FavoriteResponseDTO {
     private Long userId;
     private Long recipeId;
-    private LocalDateTime createdAt;
 }

@@ -11,12 +11,13 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserSettings {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long settingsId;
 
+    @Id
+    private Long userId;
+
+    @MapsId
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
     @Enumerated(EnumType.STRING)

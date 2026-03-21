@@ -21,9 +21,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findAll().stream()
                 .map(category -> CategoryResponseDTO.builder()
                         .id(category.getId())
-                        .name(category.getName())
-                        .createdAt(category.getCreatedAt())
-                        .updatedAt(category.getUpdatedAt())
+                        .code(category.getCode())
                         .build())
                 .toList();
     }

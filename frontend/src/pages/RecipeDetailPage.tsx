@@ -5,6 +5,7 @@ import { getRecipeById } from "../api/recipes";
 import { ArrowBackIcon, HeartIcon, TimerIcon, StarIcon } from "../components/ui/icons";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
+import { convertIngredient, type UnitSystem } from "../utils/unitConverter";
 
 const API_URL = "http://localhost:8080";
 
@@ -27,16 +28,27 @@ export default function RecipeDetailPage({ lang }: Props) {
   const [userRating, setUserRating] = useState(0);
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
 
-  const [unitSystem, setUnitSystem] = useState(user?.settings?.measurementUnitSystem || 'METRIC');
+  const getDefaultUnitSystem = (): UnitSystem => {
+    return (user?.userSettingsDTO?.measurementUnitSystem as UnitSystem) || "METRIC";
+  };
+
+  const [unitSystem, setUnitSystem] = useState<UnitSystem>(getDefaultUnitSystem());
 
   useEffect(() => {
     if (!id) return;
     loadRecipeData();
+    setUnitSystem(getDefaultUnitSystem());
+    setActiveImgIdx(0);
   }, [id]);
+
+  useEffect(() => {
+    setUnitSystem(getDefaultUnitSystem());
+  }, [user]);
 
   async function loadRecipeData() {
     try {
       setLoading(true);
+      setError(null);
       const res = await getRecipeById(Number(id));
       const data = res.data || res;
       setRecipe(data);
@@ -54,7 +66,9 @@ export default function RecipeDetailPage({ lang }: Props) {
       const url = `/api/recipes/${id}/favorite`;
       isFavorite ? await api.delete(url) : await api.post(url);
       setIsFavorite(!isFavorite);
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleSubmitFeedback = async () => {
@@ -79,28 +93,28 @@ export default function RecipeDetailPage({ lang }: Props) {
     }
   };
 
-  const formatIngredient = (amount: number, unit: string) => {
-    const unitMap = t.createRecipe.form.units;
-    let displayAmount: string | number = amount;
-    let displayUnit = unitMap[unit as keyof typeof unitMap] || unit;
-
-    if (unitSystem === 'IMPERIAL') {
-      if (unit === 'GRAM') { displayAmount = (amount * 0.035).toFixed(1); displayUnit = 'oz'; }
-      else if (unit === 'KILOGRAM') { displayAmount = (amount * 2.2).toFixed(1); displayUnit = 'lb'; }
-      else if (unit === 'MILLILITER') { displayAmount = (amount * 0.034).toFixed(1); displayUnit = 'fl oz'; }
-    }
-    return { displayAmount, displayUnit };
-  };
-
   const getUserRating = (userId: number) => {
     const rating = recipe.ratings?.find((r: any) => r.user?.id === userId || r.userId === userId);
     return rating ? rating.score : null;
+  };
+
+  const handleUnitSystemChange = () => {
+    setUnitSystem((prev) => (prev === "METRIC" ? "IMPERIAL" : "METRIC"));
   };
 
   if (loading) return <section className="recipe-detail"><p>{t.profile.loading}</p></section>;
   if (error || !recipe) return <section className="recipe-detail"><h2>{error}</h2></section>;
 
   const getFullUrl = (path: string) => (path?.startsWith("http") ? path : `${API_URL}${path}`);
+
+  const formatIngredient = (amount: number, unit: string) => {
+    return convertIngredient(amount, unit, unitSystem, t.createRecipe.form.units);
+  };
+
+  const mainImage = recipe.images && recipe.images.length > 0
+    ? getFullUrl(recipe.images[activeImgIdx].url)
+    : "/images/default-recipe.png";
+
 
   return (
     <section className="recipe-detail">
@@ -136,18 +150,14 @@ export default function RecipeDetailPage({ lang }: Props) {
         <section className="recipe-detail__gallery">
           <div className="recipe-detail__gallery-grid">
             <div className="recipe-detail__gallery-main">
-              <img
-                src={getFullUrl(recipe.images?.[activeImgIdx]?.url) || "/images/default-recipe.png"}
-                alt={recipe.name}
-                className="recipe-detail__image"
-              />
+              <img src={mainImage} alt={recipe.name} className="recipe-detail__image" />
             </div>
             {recipe.images?.length > 1 && (
               <div className="recipe-detail__thumbnails">
                 {recipe.images.map((img: any, idx: number) => (
                   <button
                     key={idx}
-                    className={`recipe-detail__thumb ${activeImgIdx === idx ? 'recipe-detail__thumb--active' : ''}`}
+                    className={`recipe-detail__thumb ${activeImgIdx === idx ? "recipe-detail__thumb--active" : ""}`}
                     onClick={() => setActiveImgIdx(idx)}
                   >
                     <img src={getFullUrl(img.url)} alt="" className="recipe-detail__thumb-img" />
@@ -164,20 +174,21 @@ export default function RecipeDetailPage({ lang }: Props) {
           <div className="recipe-detail__section">
             <div className="recipe-detail__comments-head">
               <h3 className="recipe-detail__section-title">{t.createRecipe.form.sections.ingredients}</h3>
-              <button className="recipe-detail__btn" onClick={() => setUnitSystem(unitSystem === 'METRIC' ? 'IMPERIAL' : 'METRIC')}>
-                {unitSystem === 'METRIC' ? "→ Imperial" : "→ Metric"}
+              <button className="recipe-detail__btn" onClick={handleUnitSystemChange}>
+                {unitSystem === "METRIC" ? `→ ${d.actions.imperial}` : `→ ${d.actions.metric}`}
               </button>
             </div>
             <ul className="recipe-detail__ingredients">
               {recipe.ingredients?.map((ing: any, i: number) => {
-                const { displayAmount, displayUnit } = formatIngredient(ing.amount, ing.unit);
+                const { amount, unit } = formatIngredient(ing.amount, ing.unit);
                 return (
                   <li key={i} className="recipe-detail__ingredient">
-                    <div className="recipe-detail__ingredient-amount--wrapper">
-                      <span className="recipe-detail__ingredient-amount">{displayAmount}</span>{' '}
-                      <span className="recipe-detail__ingredient-unit">{displayUnit}</span>
+                    <span className="recipe-detail__step-index">{i + 1}.</span>
+                    <div className="recipe-detail__unit-amount">
+                      <strong>{amount}</strong>
+                      <span>{unit}</span>
                     </div>
-                    <span className="recipe-detail__ingredient-name">{ing.name}</span>
+                    <span>{ing.name}</span>
                   </li>
                 );
               })}
@@ -211,7 +222,7 @@ export default function RecipeDetailPage({ lang }: Props) {
                     className="recipe-detail__star-btn"
                     onClick={() => setUserRating(star)}
                   >
-                    <StarIcon className={`icon-md ${star <= userRating ? 'recipe-card__parameters--rating' : ''}`} />
+                    <StarIcon className={`icon-md ${star <= userRating ? "recipe-card__parameters--rating" : ""}`} />
                   </button>
                 ))}
               </div>
@@ -256,14 +267,20 @@ export default function RecipeDetailPage({ lang }: Props) {
                             {[1, 2, 3, 4, 5].map((s) => (
                               <StarIcon
                                 key={s}
-                                className={`icon-sm ${s <= userScore ? 'recipe-card__parameters--rating' : ''}`}
+                                className={`icon-sm ${s <= userScore ? "recipe-card__parameters--rating" : ""}`}
                               />
                             ))}
                           </div>
                         )}
                       </div>
                       <span className="recipe-detail__comment-meta">
-                        {new Date(c.createdAt).toLocaleDateString()}
+                        {c.createdAt ? new Date(c.createdAt).toLocaleDateString(lang === 'cz' ? 'cs-CZ' : 'en-EN', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        }) : "—"}
                       </span>
                     </div>
                     <p className="recipe-detail__comment-text">{c.text}</p>

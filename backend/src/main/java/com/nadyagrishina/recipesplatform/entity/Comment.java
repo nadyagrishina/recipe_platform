@@ -19,7 +19,7 @@ public class Comment extends BaseEntity{
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, length = 2000)
+    @Column(nullable = false, length = 2000, columnDefinition = "TEXT")
     private String text;
 
     public static Comment create(Recipe recipe, User user, String text){

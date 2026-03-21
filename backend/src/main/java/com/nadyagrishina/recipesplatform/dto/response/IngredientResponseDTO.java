@@ -4,7 +4,6 @@ import com.nadyagrishina.recipesplatform.entity.Unit;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -16,6 +15,4 @@ public class IngredientResponseDTO {
     private String name;
     private BigDecimal amount;
     private Unit unit;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }
