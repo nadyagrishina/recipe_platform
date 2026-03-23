@@ -11,6 +11,7 @@ type Props = {
   lang: Language;
   categories: any[];
   unitSystem: UnitSystem;
+  isEditMode?: boolean;
 };
 
 function normalizeList(list: any[] | undefined) {
@@ -37,6 +38,7 @@ export function RecipeForm({
   lang,
   categories,
   unitSystem,
+  isEditMode = false,
 }: Props) {
   const t = TEXTS[lang];
   const f = t.createRecipe.form;
@@ -47,7 +49,11 @@ export function RecipeForm({
   const [time, setTime] = useState<number>(initialData.preparationTimeMinutes ?? 1);
   const [servings, setServings] = useState<number>(initialData.servings ?? 1);
   const [categoryId, setCategoryId] = useState<string>(
-    initialData.categoryId ? String(initialData.categoryId) : ""
+    String(
+      initialData.categoryId ??
+      (initialData as any).category?.id ??
+      ""
+    )
   );
   const [ingredients, setIngredients] = useState<IngredientFormItem[]>(
     normalizeIngredients(initialData.ingredients as any)
@@ -128,7 +134,7 @@ export function RecipeForm({
       return;
     }
 
-    onSubmit({
+    const payload: any = {
       name: name.trim(),
       description: description.trim(),
       preparationTimeMinutes: time,
@@ -136,48 +142,56 @@ export function RecipeForm({
       categoryId: Number(categoryId),
       ingredients: finalIngredients,
       steps: finalSteps,
-      images,
-    });
+    };
+
+    if (!isEditMode) {
+      payload.images = images;
+    }
+
+    onSubmit(payload);
   };
+
 
   return (
     <form className="create-recipe__form" onSubmit={handleSubmit}>
       <div className="create-recipe__grid">
         <div className="create-recipe__col create-recipe__col--left">
-          <fieldset className="create-recipe__section create-recipe__panel create-recipe__panel--images">
-            <legend className="create-recipe__legend">{f.sections.images}</legend>
+          {!isEditMode && (
+            <fieldset className="create-recipe__section create-recipe__panel create-recipe__panel--images">
+              <legend className="create-recipe__legend">{f.sections.images}</legend>
 
-            <div className="create-recipe__field">
-              <label className="create-recipe__label">{f.fields.uploadImages}</label>
+              <div className="create-recipe__field">
+                <label className="create-recipe__label">{f.fields.uploadImages}</label>
 
-              <div className="create-recipe__file-actions">
-                <label className="create-recipe__file-upload">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    hidden
-                    onChange={(e) => e.target.files && setImages(Array.from(e.target.files))}
-                  />
-                  <span className="create-recipe__file-button">
-                    {images.length
-                      ? `${f.hints.imagesSelected}: ${images.length}`
-                      : f.hints.imagesEmpty}
-                  </span>
-                </label>
+                <div className="create-recipe__file-actions">
+                  <label className="create-recipe__file-upload">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      hidden
+                      onChange={(e) => e.target.files && setImages(Array.from(e.target.files))}
+                    />
+                    <span className="create-recipe__file-button">
+                      {images.length
+                        ? `${f.hints.imagesSelected}: ${images.length}`
+                        : f.hints.imagesEmpty}
+                    </span>
+                  </label>
 
-                {images.length > 0 && (
-                  <button
-                    type="button"
-                    className="create-recipe__file-clear"
-                    onClick={() => setImages([])}
-                  >
-                    {f.actions.clearImages}
-                  </button>
-                )}
+                  {images.length > 0 && (
+                    <button
+                      type="button"
+                      className="create-recipe__file-clear"
+                      onClick={() => setImages([])}
+                    >
+                      {f.actions.clearImages}
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          </fieldset>
+            </fieldset>
+          )}
 
           <fieldset className="create-recipe__section create-recipe__panel create-recipe__panel--info">
             <legend className="create-recipe__legend">{f.sections.basic}</legend>

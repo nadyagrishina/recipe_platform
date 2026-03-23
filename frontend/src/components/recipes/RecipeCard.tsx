@@ -31,11 +31,11 @@ export function RecipeCard({ recipe }: Props) {
 
   const getImageUrl = () => {
     const rawPath = recipe.previewImageUrl || recipe.images?.[0]?.url;
-    
+
     if (!rawPath) return "/images/default-recipe.png";
-    
+
     if (rawPath.startsWith("http")) return rawPath;
-    
+
     return `${API_URL}${rawPath}`;
   };
 
@@ -46,9 +46,9 @@ export function RecipeCard({ recipe }: Props) {
   return (
     <Link to={`/recipes/${recipe.id}`} className="recipe-card recipe-card--link">
       <div className="recipe-card__image">
-        <img 
-          className="recipe-card__image--img" 
-          src={imageUrl} 
+        <img
+          className="recipe-card__image--img"
+          src={imageUrl}
           alt={recipe.name}
           onError={(e) => {
             (e.target as HTMLImageElement).src = "/images/default-recipe.png";
@@ -58,18 +58,23 @@ export function RecipeCard({ recipe }: Props) {
 
       <div className="recipe-card__content">
         <h4 className="recipe-card__title">{recipe.name}</h4>
+        <p className="recipe-card__description">{recipe.description}</p>
         <div className="recipe-card__meta">
-          <div className="recipe-card__parameters">
-            <div className="recipe-card__parameters-inner">
-              <StarIcon className="icon-md recipe-card__parameters--rating" />
-              <span>{rating > 0 ? rating.toFixed(1) : "-"}</span>
+          <div className="recipe-card__parameters-wrapper">
+            <div className="recipe-card__parameters">
+              <div className="recipe-card__parameters-inner">
+                <StarIcon className="icon-md recipe-card__parameters--rating" />
+                <span>{rating > 0 ? rating.toFixed(1) : "-"}</span>
+              </div>
+              <div className="recipe-card__parameters-inner">
+                <TimerIcon className="icon-md recipe-card__parameters--timer" />
+                <span>{time} min</span>
+              </div>
             </div>
-            <div className="recipe-card__parameters-inner">
-              <TimerIcon className="icon-md recipe-card__parameters--timer" />
-              <span>{time} min</span>
-            </div>
+            <span className="recipe-card__author-name">
+              @{recipe.author?.username || "user"}
+            </span>
           </div>
-
           <button
             type="button"
             className={`recipe-card__favorite ${isFavorite ? "recipe-card__favorite--active" : ""}`}

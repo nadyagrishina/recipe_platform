@@ -44,3 +44,6 @@ export const addFavorite = (id: number) =>
 
 export const removeFavorite = (id: number) => 
   api.delete(`/api/recipes/${id}/favorite`);
+
+export const deleteRecipe = (id: number) => api.delete(`/api/recipes/${id}`);
+export const updateRecipe = (id: number, data: any) => api.put(`/api/recipes/${id}`, data);

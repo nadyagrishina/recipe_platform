@@ -86,6 +86,7 @@ export default function CreateRecipePage({ lang }: Props) {
         categories={categories}
         unitSystem={unitSystem}
         submitLabel={isSubmitting ? "..." : t.createRecipe.form.actions.submit}
+        isEditMode={false}
       />
     </section>
   );

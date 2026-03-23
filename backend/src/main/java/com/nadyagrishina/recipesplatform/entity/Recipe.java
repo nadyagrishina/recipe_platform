@@ -53,7 +53,7 @@ public class Recipe extends BaseEntity {
     @Builder.Default
     private List<RecipeImage> images = new ArrayList<>();
 
-    @OneToMany(mappedBy = "recipe")
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     @Fetch(FetchMode.SUBSELECT)
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
@@ -63,12 +63,12 @@ public class Recipe extends BaseEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @OneToMany(mappedBy = "recipe")
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     @Fetch(FetchMode.SUBSELECT)
     @Builder.Default
     private List<Favorite> favorites = new ArrayList<>();
 
-    @OneToMany(mappedBy = "recipe")
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     @Fetch(FetchMode.SUBSELECT)
     @Builder.Default
     private List<Rating> ratings = new ArrayList<>();

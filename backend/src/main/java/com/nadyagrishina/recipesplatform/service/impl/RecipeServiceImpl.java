@@ -6,11 +6,14 @@ import com.nadyagrishina.recipesplatform.dto.response.RecipeImageResponseDTO;
 import com.nadyagrishina.recipesplatform.dto.response.RecipeResponseDTO;
 import com.nadyagrishina.recipesplatform.dto.response.RecipeSummaryResponseDTO;
 import com.nadyagrishina.recipesplatform.entity.Category;
-import com.nadyagrishina.recipesplatform.entity.Favorite;
 import com.nadyagrishina.recipesplatform.entity.Recipe;
 import com.nadyagrishina.recipesplatform.entity.User;
+import com.nadyagrishina.recipesplatform.entity.RecipeImage;
 import com.nadyagrishina.recipesplatform.exception.ResourceNotFoundException;
+import com.nadyagrishina.recipesplatform.mapper.IngredientMapper;
+import com.nadyagrishina.recipesplatform.mapper.RecipeImageMapper;
 import com.nadyagrishina.recipesplatform.mapper.RecipeMapper;
+import com.nadyagrishina.recipesplatform.mapper.RecipeStepMapper;
 import com.nadyagrishina.recipesplatform.repository.CategoryRepository;
 import com.nadyagrishina.recipesplatform.repository.FavoriteRepository;
 import com.nadyagrishina.recipesplatform.repository.RatingRepository;
@@ -19,6 +22,7 @@ import com.nadyagrishina.recipesplatform.repository.UserRepository;
 import com.nadyagrishina.recipesplatform.service.RecipeService;
 import com.nadyagrishina.recipesplatform.specification.RecipeSpecifications;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -32,6 +36,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Transactional
 public class RecipeServiceImpl implements RecipeService {
@@ -42,19 +47,29 @@ public class RecipeServiceImpl implements RecipeService {
     private final FavoriteRepository favoriteRepository;
     private final RatingRepository ratingRepository;
     private final RecipeMapper recipeMapper;
+    private final RecipeImageMapper recipeImageMapper;
+    private final RecipeStepMapper recipeStepMapper;
+    private final IngredientMapper ingredientMapper;
 
-    public RecipeServiceImpl(RecipeRepository recipeRepository,
-                             UserRepository userRepository,
-                             CategoryRepository categoryRepository,
-                             FavoriteRepository favoriteRepository,
-                             RatingRepository ratingRepository,
-                             RecipeMapper recipeMapper) {
+    public RecipeServiceImpl(
+            RecipeRepository recipeRepository,
+            UserRepository userRepository,
+            CategoryRepository categoryRepository,
+            FavoriteRepository favoriteRepository,
+            RatingRepository ratingRepository,
+            RecipeMapper recipeMapper,
+            RecipeImageMapper recipeImageMapper,
+            RecipeStepMapper recipeStepMapper,
+            IngredientMapper ingredientMapper) {
         this.recipeRepository = recipeRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.favoriteRepository = favoriteRepository;
         this.ratingRepository = ratingRepository;
         this.recipeMapper = recipeMapper;
+        this.recipeImageMapper = recipeImageMapper;
+        this.recipeStepMapper = recipeStepMapper;
+        this.ingredientMapper = ingredientMapper;
     }
 
     @Override
@@ -153,7 +168,41 @@ public class RecipeServiceImpl implements RecipeService {
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + dto.getCategoryId()));
 
-        recipeMapper.updateEntity(recipe, dto, category);
+        recipe.setName(dto.getName());
+        recipe.setDescription(dto.getDescription());
+        recipe.setPreparationTimeMinutes(dto.getPreparationTimeMinutes());
+        recipe.setServings(dto.getServings());
+        recipe.setCategory(category);
+
+        if (dto.getIngredients() != null) {
+            recipe.getIngredients().clear();
+        }
+
+        if (dto.getSteps() != null) {
+            recipe.getSteps().clear();
+        }
+
+        if (dto.getImages() != null) {
+            recipe.getImages().clear();
+        }
+
+        recipeRepository.saveAndFlush(recipe);
+
+        if (dto.getIngredients() != null) {
+            ingredientMapper.toEntityList(dto.getIngredients(), recipe)
+                    .forEach(recipe::addIngredient);
+        }
+
+        if (dto.getSteps() != null) {
+            recipeStepMapper.toEntityList(dto.getSteps(), recipe)
+                    .forEach(recipe::addStep);
+        }
+
+        if (dto.getImages() != null) {
+            recipeImageMapper.toEntityList(dto.getImages(), recipe)
+                    .forEach(recipe::addImage);
+        }
+
         Recipe updatedRecipe = recipeRepository.save(recipe);
 
         Double averageRating = ratingRepository.findAverageScoreByRecipeId(updatedRecipe.getId());
@@ -178,6 +227,10 @@ public class RecipeServiceImpl implements RecipeService {
 
         if (!recipe.getAuthor().getUsername().equals(currentUsername)) {
             throw new IllegalArgumentException("You can delete only your own recipes");
+        }
+
+        for (RecipeImage image : recipe.getImages()){
+            deletePhysicalFile(image.getUrl());
         }
 
         recipeRepository.delete(recipe);
@@ -238,6 +291,17 @@ public class RecipeServiceImpl implements RecipeService {
                     .build();
         } catch (IOException e) {
             throw new RuntimeException("Could not store file: " + e.getMessage());
+        }
+    }
+
+    private void deletePhysicalFile(String relativePath) {
+        try {
+            String pathOnDisk = relativePath.startsWith("/") ? relativePath.substring(1) : relativePath;
+            Path filePath = Paths.get(pathOnDisk);
+            Files.deleteIfExists(filePath);
+            log.info("Physical file deleted: {}", pathOnDisk);
+        } catch (IOException e) {
+            log.error("Failed to delete physical file: {}", relativePath, e);
         }
     }
 }

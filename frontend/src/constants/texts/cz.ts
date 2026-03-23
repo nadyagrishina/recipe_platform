@@ -166,6 +166,9 @@ export const TEXTS_CZ = {
       sendComment: "Odeslat",
       imperial: "Imperiální",
       metric: "Metrické",
+      loading: "Načítání receptu...",
+      deleteRecipe: "Smazat",
+      editRecipe: "Upravit recept",
     },
     sections: {
       photos: "Fotky",
@@ -182,6 +185,7 @@ export const TEXTS_CZ = {
       noPhotos: "Zatím žádné fotky 😭",
       noComments: "Zatím žádné komentáře. Buďte první 😉",
       noDescription: "Tento recept zatím nemá popis.",
+      deleteRecipe: "Opravdu chcete smazat tento recept?",
     },
     meta: {
       time: "Doba",
@@ -189,6 +193,7 @@ export const TEXTS_CZ = {
       servings: "Porce",
       noRating: "Bez hodnocení",
       you: "Vy",
+      author: "Autor",
       commentsCount: (n: number) => `${n} komentářů`,
     },
     aria: {
@@ -234,4 +239,7 @@ export const TEXTS_CZ = {
     avatarUrl: "Profilová fotka",
     uploadPhoto: "Nahrát obrazek"
   },
+  editRecipe: {
+    title: "Úprava receptu",
+  }
 };

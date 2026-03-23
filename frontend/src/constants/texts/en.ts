@@ -166,6 +166,9 @@ export const TEXTS_EN = {
       sendComment: "Send",
       imperial: "Imperial",
       metric: "Metric",
+      loading: "Loading recipe...",
+      deleteRecipe: "Delete",
+      editRecipe: "Edit recipe",
     },
     sections: {
       photos: "Photos",
@@ -182,6 +185,7 @@ export const TEXTS_EN = {
       noPhotos: "No photos yet 😭",
       noComments: "No comments yet. Be the first 😉",
       noDescription: "This recipe has no description yet.",
+      deleteRecipe: "Are you sure you want to delete this recipe?",
     },
     meta: {
       time: "Time",
@@ -189,6 +193,7 @@ export const TEXTS_EN = {
       servings: "Servings",
       noRating: "No rating",
       you: "You",
+      author: "Author",
       commentsCount: (n: number) => `${n} comments`,
     },
     aria: {
@@ -234,4 +239,7 @@ export const TEXTS_EN = {
     avatarUrl: "Profile photo",
     uploadPhoto: "Upload Photo",
   },
+  editRecipe: {
+    title: "Edit recipe",
+  }
 };

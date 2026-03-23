@@ -77,6 +77,12 @@
 }
 
 .recipe-card__title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recipe-card__description {
   line-height: var(--line-height-tight);
   min-height: calc(var(--line-height-tight) * 2em);
   display: -webkit-box;
@@ -155,6 +161,11 @@
   margin-top: auto;
 }
 
+.recipe-card__parameters-wrapper{
+  display: flex;
+  justify-content: space-between;
+}
+
 .recipe-card__parameters {
   display: flex;
   align-items: center;
@@ -173,6 +184,10 @@
 
 .recipe-card__parameters--timer {
   color: var(--color-text);
+}
+
+.recipe-card__author-name{
+  font-weight: var(--font-bold);
 }
 
 /* ===== Recipes form ===== */

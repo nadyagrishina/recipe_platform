@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { TEXTS, type Language } from "../constants/texts";
-import { getRecipeById } from "../api/recipes";
+import { getRecipeById, deleteRecipe, updateRecipe } from "../api/recipes";
 import { ArrowBackIcon, HeartIcon, TimerIcon, StarIcon } from "../components/ui/icons";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
 import { convertIngredient, type UnitSystem } from "../utils/unitConverter";
+import { RecipeForm } from "../components/recipes/RecipeForm";
 
 const API_URL = "http://localhost:8080";
 
@@ -23,11 +24,19 @@ export default function RecipeDetailPage({ lang }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [activeImgIdx, setActiveImgIdx] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
 
   const [commentText, setCommentText] = useState("");
   const [userRating, setUserRating] = useState(0);
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
+  const [hoverRating, setHoverRating] = useState(0);
 
+  const isAuthor =
+    !!user &&
+    !!recipe &&
+    (user.id === recipe.author?.id || user.username === recipe.author?.username);
   const getDefaultUnitSystem = (): UnitSystem => {
     return (user?.userSettingsDTO?.measurementUnitSystem as UnitSystem) || "METRIC";
   };
@@ -39,11 +48,22 @@ export default function RecipeDetailPage({ lang }: Props) {
     loadRecipeData();
     setUnitSystem(getDefaultUnitSystem());
     setActiveImgIdx(0);
+    loadCategories();
   }, [id]);
 
   useEffect(() => {
     setUnitSystem(getDefaultUnitSystem());
   }, [user]);
+
+
+  async function loadCategories() {
+    try {
+      const res = await api.get("/api/categories");
+      setCategories(res.data || res);
+    } catch (err) {
+      console.error("Failed to load categories", err);
+    }
+  }
 
   async function loadRecipeData() {
     try {
@@ -102,7 +122,7 @@ export default function RecipeDetailPage({ lang }: Props) {
     setUnitSystem((prev) => (prev === "METRIC" ? "IMPERIAL" : "METRIC"));
   };
 
-  if (loading) return <section className="recipe-detail"><p>{t.profile.loading}</p></section>;
+  if (loading) return <section className="recipe-detail"><p>{t.recipeDetail.actions.loading}</p></section>;
   if (error || !recipe) return <section className="recipe-detail"><h2>{error}</h2></section>;
 
   const getFullUrl = (path: string) => (path?.startsWith("http") ? path : `${API_URL}${path}`);
@@ -115,13 +135,72 @@ export default function RecipeDetailPage({ lang }: Props) {
     ? getFullUrl(recipe.images[activeImgIdx].url)
     : "/images/default-recipe.png";
 
+  const handleDelete = async () => {
+    if (!window.confirm(d.hints.deleteRecipe)) return;
+    try {
+      await deleteRecipe(Number(id));
+      navigate(-1);
+    } catch (err) {
+      console.error("Delete failed", err);
+    }
+  };
+
+  const handleUpdate = async (formData: any) => {
+    try {
+      setLoading(true);
+      await updateRecipe(Number(id), formData);
+      setIsEditing(false);
+      await loadRecipeData();
+    } catch (err) {
+      console.error("Update failed", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading && !isEditing) return <section className="recipe-detail"><p>{t.profile.loading}</p></section>;
+  if (error || !recipe) return <section className="recipe-detail"><h2>{error}</h2></section>;
+
+  if (isEditing) {
+    return (
+      <section className="recipe-detail">
+        <div className="recipe-detail__header">
+          <button onClick={() => setIsEditing(false)} className="recipe-detail__back">
+            <ArrowBackIcon className="icon-sm" /> {d.actions.back}
+          </button>
+          <h2 className="recipe-detail__title">{t.editRecipe.title}</h2>
+        </div>
+        <RecipeForm
+          initialData={recipe}
+          onSubmit={handleUpdate}
+          submitLabel={t.createRecipe.form.actions.submit}
+          lang={lang}
+          categories={categories}
+          unitSystem={unitSystem}
+          isEditMode={true}
+        />
+      </section>
+    );
+  }
 
   return (
     <section className="recipe-detail">
       <header className="recipe-detail__header">
-        <button onClick={() => navigate(-1)} className="recipe-detail__back">
-          <ArrowBackIcon className="icon-sm" /> {d.actions.back}
-        </button>
+        <div className="recipe-detail__nav-row">
+          <button onClick={() => navigate(-1)} className="recipe-detail__back">
+            <ArrowBackIcon className="icon-sm" /> {d.actions.back}
+          </button>
+          {isAuthor && (
+            <div className="recipe-detail__author-actions">
+              <button className="recipe-detail__btn recipe-detail__btn--edit" onClick={() => setIsEditing(true)}>
+                {d.actions.editRecipe}
+              </button>
+              <button className="recipe-detail__btn recipe-detail__btn--delete" onClick={handleDelete}>
+                {d.actions.deleteRecipe}
+              </button>
+            </div>
+          )}
+        </div>
         <div className="recipe-detail__title-row">
           <h2 className="recipe-detail__title">{recipe.name}</h2>
           <button
@@ -132,6 +211,10 @@ export default function RecipeDetailPage({ lang }: Props) {
           </button>
         </div>
         <div className="recipe-detail__meta">
+          <span className="recipe-detail__meta-item">
+            <strong>{d.meta?.author}:</strong> {recipe.author?.username}
+          </span>
+          <span className="recipe-detail__dot">•</span>
           <span className="recipe-detail__meta-item">
             <StarIcon className="icon-sm" /> {recipe.averageRating?.toFixed(1) || d.meta.noRating}
           </span>
@@ -149,8 +232,8 @@ export default function RecipeDetailPage({ lang }: Props) {
       <div className="recipe-detail__main-layout">
         <section className="recipe-detail__gallery">
           <div className="recipe-detail__gallery-grid">
-            <div className="recipe-detail__gallery-main">
-              <img src={mainImage} alt={recipe.name} className="recipe-detail__image" />
+            <div className="recipe-detail__gallery-main" onClick={() => recipe.images?.length > 0 && setIsModalOpen(true)}>
+              <img src={mainImage} alt={recipe.name} className="recipe-detail__image" style={{ cursor: 'pointer' }} />
             </div>
             {recipe.images?.length > 1 && (
               <div className="recipe-detail__thumbnails">
@@ -214,17 +297,24 @@ export default function RecipeDetailPage({ lang }: Props) {
           <h3 className="recipe-detail__section-title">{d.actions.sendComment}</h3>
           <div className="recipe-detail__comment-form">
             <div className="recipe-detail__comment-form-row">
-              <div className="recipe-detail__rating-select">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    className="recipe-detail__star-btn"
-                    onClick={() => setUserRating(star)}
-                  >
-                    <StarIcon className={`icon-md ${star <= userRating ? "recipe-card__parameters--rating" : ""}`} />
-                  </button>
-                ))}
+              <div className="recipe-detail__rating-select" onMouseLeave={() => setHoverRating(0)}>
+                {[1, 2, 3, 4, 5].map((star) => {
+                  const isFilled = hoverRating >= star || (hoverRating === 0 && userRating >= star);
+
+                  return (
+                    <button
+                      key={star}
+                      type="button"
+                      className="recipe-detail__star-btn"
+                      onClick={() => setUserRating(star)}
+                      onMouseEnter={() => setHoverRating(star)}
+                    >
+                      <StarIcon
+                        className={`icon-md ${isFilled ? "recipe-card__parameters--rating" : ""}`}
+                      />
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -240,7 +330,7 @@ export default function RecipeDetailPage({ lang }: Props) {
 
             <div className="recipe-detail__comment-actions">
               <button
-                className="recipe-detail__btn"
+                className="recipe-detail__btn recipe-detail__btn--comment"
                 onClick={handleSubmitFeedback}
                 disabled={isSubmittingFeedback}
               >
@@ -250,15 +340,35 @@ export default function RecipeDetailPage({ lang }: Props) {
           </div>
         </div>
 
-        <div className="recipe-detail__section">
-          <h3 className="recipe-detail__section-title">{t.recipeDetail.sections.comments}</h3>
-          <div className="recipe-detail__comment-list">
-            {recipe.comments?.length > 0 ? (
-              recipe.comments.map((c: any) => {
-                const userScore = getUserRating(c.user?.id);
+        <div className="recipe-detail__comment-list">
+          {recipe.comments?.length > 0 ? (
+            recipe.comments.map((c: any) => {
+              const userScore = getUserRating(c.user?.id);
+              const avatarPath = c.user?.userSettingsDTO?.imageUrl || c.user?.imageUrl;
+              const commentUserAvatar = avatarPath
+                ? (avatarPath.startsWith("http") ? avatarPath : `${API_URL}${avatarPath}`)
+                : "/images/default-avatar.png";
 
-                return (
-                  <div key={c.id} className="recipe-detail__comment">
+              const formattedDate = c.createdAt ? new Date(c.createdAt).toLocaleDateString(lang === 'cz' ? 'cz-CZ' : 'en-EN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              }) : "—";
+
+              return (
+                <div key={c.id} className="recipe-detail__comment">
+                  <div className="recipe-detail__comment-avatar-container">
+                    <img
+                      src={commentUserAvatar}
+                      alt={c.user?.username}
+                      className="recipe-detail__comment-avatar"
+                      onError={(e) => { (e.target as HTMLImageElement).src = "/images/default-avatar.png" }}
+                    />
+                  </div>
+
+                  <div className="recipe-detail__comment-main">
                     <div className="recipe-detail__comment-head">
                       <div className="recipe-detail__comment-user-info">
                         <strong>{c.user?.username}</strong>
@@ -273,26 +383,29 @@ export default function RecipeDetailPage({ lang }: Props) {
                           </div>
                         )}
                       </div>
-                      <span className="recipe-detail__comment-meta">
-                        {c.createdAt ? new Date(c.createdAt).toLocaleDateString(lang === 'cz' ? 'cs-CZ' : 'en-EN', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        }) : "—"}
-                      </span>
+                      <span className="recipe-detail__comment-meta">{formattedDate}</span>
                     </div>
                     <p className="recipe-detail__comment-text">{c.text}</p>
                   </div>
-                );
-              })
-            ) : (
-              <p>{t.recipeDetail.hints.noComments}</p>
-            )}
-          </div>
+                </div>
+              );
+            })
+          ) : (
+            <p>{t.recipeDetail.hints.noComments}</p>
+          )}
         </div>
       </div>
-    </section>
+
+      {
+        isModalOpen && recipe.images && recipe.images.length > 0 && (
+          <div className="profile__modal" onClick={() => setIsModalOpen(false)}>
+            <div className="profile__modal-content">
+              <img src={mainImage} alt={recipe.name} />
+              <button className="profile__modal-close">✕</button>
+            </div>
+          </div>
+        )
+      }
+    </section >
   );
 }
