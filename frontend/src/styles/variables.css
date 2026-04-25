@@ -51,6 +51,8 @@
 
   --color-bg-black-opacity: rgba(0, 0, 0, 0.85);
 
+  --color-shopping-list-bg: #f6f6f6;
+
   /* ===== Shadows ===== */
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   --card-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.1);

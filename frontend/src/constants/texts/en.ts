@@ -169,6 +169,10 @@ export const TEXTS_EN = {
       loading: "Loading recipe...",
       deleteRecipe: "Delete",
       editRecipe: "Edit recipe",
+      shoppingList: "Shopping list",
+      download: "Download",
+      copy: "Copy",
+      close: "Close"
     },
     sections: {
       photos: "Photos",
@@ -186,6 +190,8 @@ export const TEXTS_EN = {
       noComments: "No comments yet. Be the first 😉",
       noDescription: "This recipe has no description yet.",
       deleteRecipe: "Are you sure you want to delete this recipe?",
+      commentPlaceholder: "Write a comment...",
+      noDate: "—"
     },
     meta: {
       time: "Time",
@@ -203,6 +209,10 @@ export const TEXTS_EN = {
     errors: {
       invalidId: "Invalid recipe id",
       notFound: "Recipe not found",
+      generic: "An error occurred",
+      copyFailed: "Copy failed",
+      deleteFailed: "Delete failed",
+      updateFailed: "Update failed"
     },
   },
   profile: {
@@ -218,7 +228,7 @@ export const TEXTS_EN = {
     settings: "Settings",
     logout: "Log out",
     loading: "Loading profile...",
-    loadError: "Failed to load profile.",
+    loadError: "Failed to load page.",
     noRecipes: "You have no recipes yet.",
     joined: "Joined",
     updated: "Last updated",

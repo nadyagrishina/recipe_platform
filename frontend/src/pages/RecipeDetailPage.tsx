@@ -12,6 +12,12 @@ const API_URL = "http://localhost:8080";
 
 type Props = { lang: Language };
 
+const getFullUrl = (path: string) =>
+  path?.startsWith("http") ? path : `${API_URL}${path}`;
+
+const getDefaultUnitSystem = (user: any): UnitSystem =>
+  (user?.userSettingsDTO?.measurementUnitSystem as UnitSystem) || "METRIC";
+
 export default function RecipeDetailPage({ lang }: Props) {
   const t = TEXTS[lang];
   const d = t.recipeDetail;
@@ -32,29 +38,30 @@ export default function RecipeDetailPage({ lang }: Props) {
   const [userRating, setUserRating] = useState(0);
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
   const [hoverRating, setHoverRating] = useState(0);
+  const [displayServings, setDisplayServings] = useState(1);
+  const [shoppingList, setShoppingList] = useState("");
+  const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
+  const [unitSystem, setUnitSystem] = useState<UnitSystem>(() => getDefaultUnitSystem(user));
 
   const isAuthor =
     !!user &&
     !!recipe &&
     (user.id === recipe.author?.id || user.username === recipe.author?.username);
-  const getDefaultUnitSystem = (): UnitSystem => {
-    return (user?.userSettingsDTO?.measurementUnitSystem as UnitSystem) || "METRIC";
-  };
 
-  const [unitSystem, setUnitSystem] = useState<UnitSystem>(getDefaultUnitSystem());
+  const servingsMultiplier =
+    recipe?.servings && displayServings > 0 ? displayServings / recipe.servings : 1;
 
   useEffect(() => {
     if (!id) return;
     loadRecipeData();
-    setUnitSystem(getDefaultUnitSystem());
+    setUnitSystem(getDefaultUnitSystem(user));
     setActiveImgIdx(0);
     loadCategories();
   }, [id]);
 
   useEffect(() => {
-    setUnitSystem(getDefaultUnitSystem());
+    setUnitSystem(getDefaultUnitSystem(user));
   }, [user]);
-
 
   async function loadCategories() {
     try {
@@ -72,9 +79,10 @@ export default function RecipeDetailPage({ lang }: Props) {
       const res = await getRecipeById(Number(id));
       const data = res.data || res;
       setRecipe(data);
+      setDisplayServings(data.servings || 1);
       setIsFavorite(data.favorite || false);
     } catch (err: any) {
-      setError(err.response?.status === 404 ? d.errors.notFound : "Error");
+      setError(err.response?.status === 404 ? d.errors.notFound : d.errors.generic);
     } finally {
       setLoading(false);
     }
@@ -114,7 +122,9 @@ export default function RecipeDetailPage({ lang }: Props) {
   };
 
   const getUserRating = (userId: number) => {
-    const rating = recipe.ratings?.find((r: any) => r.user?.id === userId || r.userId === userId);
+    const rating = recipe.ratings?.find(
+      (r: any) => r.user?.id === userId || r.userId === userId
+    );
     return rating ? rating.score : null;
   };
 
@@ -122,18 +132,49 @@ export default function RecipeDetailPage({ lang }: Props) {
     setUnitSystem((prev) => (prev === "METRIC" ? "IMPERIAL" : "METRIC"));
   };
 
-  if (loading) return <section className="recipe-detail"><p>{t.recipeDetail.actions.loading}</p></section>;
-  if (error || !recipe) return <section className="recipe-detail"><h2>{error}</h2></section>;
-
-  const getFullUrl = (path: string) => (path?.startsWith("http") ? path : `${API_URL}${path}`);
-
   const formatIngredient = (amount: number, unit: string) => {
-    return convertIngredient(amount, unit, unitSystem, t.createRecipe.form.units);
+    const scaledAmount = amount * servingsMultiplier;
+    return convertIngredient(scaledAmount, unit, unitSystem, t.createRecipe.form.units);
   };
 
-  const mainImage = recipe.images && recipe.images.length > 0
-    ? getFullUrl(recipe.images[activeImgIdx].url)
-    : "/images/default-recipe.png";
+  const buildShoppingListLines = () =>
+    recipe.ingredients.map((ing: any) => {
+      const { amount, unit } = formatIngredient(ing.amount, ing.unit);
+      return !amount || Number(amount) === 0
+        ? `• ${ing.name} (${unit})`
+        : `• ${amount} ${unit} ${ing.name}`;
+    });
+
+  const buildShoppingListText = () =>
+    `${recipe.name}\n${d.meta.servings}: ${displayServings}\n\n${buildShoppingListLines().join("\n")}`;
+
+  const handleGenerateShoppingList = () => {
+    if (!recipe?.ingredients?.length) return;
+    setShoppingList(buildShoppingListText());
+    setIsShoppingListOpen(true);
+  };
+
+  const handleCopyShoppingList = async () => {
+    try {
+      await navigator.clipboard.writeText(shoppingList || buildShoppingListText());
+    } catch (err) {
+      console.error(d.errors.copyFailed, err);
+    }
+  };
+
+  const handleDownloadShoppingList = () => {
+    if (!recipe?.ingredients?.length) return;
+    const text = shoppingList || buildShoppingListText();
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${recipe.name.replace(/\s+/g, "_")}_shopping_list.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   const handleDelete = async () => {
     if (!window.confirm(d.hints.deleteRecipe)) return;
@@ -141,7 +182,7 @@ export default function RecipeDetailPage({ lang }: Props) {
       await deleteRecipe(Number(id));
       navigate(-1);
     } catch (err) {
-      console.error("Delete failed", err);
+      console.error(d.errors.deleteFailed, err);
     }
   };
 
@@ -158,8 +199,13 @@ export default function RecipeDetailPage({ lang }: Props) {
     }
   };
 
-  if (loading && !isEditing) return <section className="recipe-detail"><p>{t.profile.loading}</p></section>;
+  if (loading) return <section className="recipe-detail"><p>{d.actions.loading}</p></section>;
   if (error || !recipe) return <section className="recipe-detail"><h2>{error}</h2></section>;
+
+  const mainImage =
+    recipe.images?.length > 0
+      ? getFullUrl(recipe.images[activeImgIdx].url)
+      : "/images/default-recipe.png";
 
   if (isEditing) {
     return (
@@ -192,15 +238,22 @@ export default function RecipeDetailPage({ lang }: Props) {
           </button>
           {isAuthor && (
             <div className="recipe-detail__author-actions">
-              <button className="recipe-detail__btn recipe-detail__btn--edit" onClick={() => setIsEditing(true)}>
+              <button
+                className="recipe-detail__btn recipe-detail__btn--edit"
+                onClick={() => setIsEditing(true)}
+              >
                 {d.actions.editRecipe}
               </button>
-              <button className="recipe-detail__btn recipe-detail__btn--delete" onClick={handleDelete}>
+              <button
+                className="recipe-detail__btn recipe-detail__btn--delete"
+                onClick={handleDelete}
+              >
                 {d.actions.deleteRecipe}
               </button>
             </div>
           )}
         </div>
+
         <div className="recipe-detail__title-row">
           <h2 className="recipe-detail__title">{recipe.name}</h2>
           <button
@@ -210,6 +263,7 @@ export default function RecipeDetailPage({ lang }: Props) {
             <HeartIcon filled={isFavorite} className="recipe-card__favorite-icon" />
           </button>
         </div>
+
         <div className="recipe-detail__meta">
           <span className="recipe-detail__meta-item">
             <strong>{d.meta?.author}:</strong> {recipe.author?.username}
@@ -224,7 +278,22 @@ export default function RecipeDetailPage({ lang }: Props) {
           </span>
           <span className="recipe-detail__dot">•</span>
           <span className="recipe-detail__meta-item">
-            {d.meta.servings}: {recipe.servings}
+            {d.meta.servings}:
+            <button
+              type="button"
+              onClick={() => setDisplayServings((prev) => Math.max(1, prev - 1))}
+              style={{ marginLeft: 8, marginRight: 8 }}
+            >
+              -
+            </button>
+            {displayServings}
+            <button
+              type="button"
+              onClick={() => setDisplayServings((prev) => prev + 1)}
+              style={{ marginLeft: 8 }}
+            >
+              +
+            </button>
           </span>
         </div>
       </header>
@@ -232,8 +301,16 @@ export default function RecipeDetailPage({ lang }: Props) {
       <div className="recipe-detail__main-layout">
         <section className="recipe-detail__gallery">
           <div className="recipe-detail__gallery-grid">
-            <div className="recipe-detail__gallery-main" onClick={() => recipe.images?.length > 0 && setIsModalOpen(true)}>
-              <img src={mainImage} alt={recipe.name} className="recipe-detail__image" style={{ cursor: 'pointer' }} />
+            <div
+              className="recipe-detail__gallery-main"
+              onClick={() => recipe.images?.length > 0 && setIsModalOpen(true)}
+            >
+              <img
+                src={mainImage}
+                alt={recipe.name}
+                className="recipe-detail__image"
+                style={{ cursor: "pointer" }}
+              />
             </div>
             {recipe.images?.length > 1 && (
               <div className="recipe-detail__thumbnails">
@@ -256,11 +333,22 @@ export default function RecipeDetailPage({ lang }: Props) {
 
           <div className="recipe-detail__section">
             <div className="recipe-detail__comments-head">
-              <h3 className="recipe-detail__section-title">{t.createRecipe.form.sections.ingredients}</h3>
-              <button className="recipe-detail__btn" onClick={handleUnitSystemChange}>
-                {unitSystem === "METRIC" ? `→ ${d.actions.imperial}` : `→ ${d.actions.metric}`}
-              </button>
+              <h3 className="recipe-detail__section-title">
+                {t.createRecipe.form.sections.ingredients}
+              </h3>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button className="recipe-detail__btn" onClick={handleUnitSystemChange}>
+                  {unitSystem === "METRIC" ? `→ ${d.actions.imperial}` : `→ ${d.actions.metric}`}
+                </button>
+                <button className="recipe-detail__btn" onClick={handleGenerateShoppingList}>
+                  {d.actions.shoppingList}
+                </button>
+                <button className="recipe-detail__btn" onClick={handleDownloadShoppingList}>
+                  {d.actions.download}
+                </button>
+              </div>
             </div>
+
             <ul className="recipe-detail__ingredients">
               {recipe.ingredients?.map((ing: any, i: number) => {
                 const { amount, unit } = formatIngredient(ing.amount, ing.unit);
@@ -278,15 +366,39 @@ export default function RecipeDetailPage({ lang }: Props) {
             </ul>
           </div>
 
+          {isShoppingListOpen && (
+            <div className="recipe-detail__section">
+              <div className="recipe-detail__comments-head">
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <h3 className="recipe-detail__section-title">{d.actions.shoppingList}</h3>
+                  <button className="recipe-detail__btn" onClick={handleCopyShoppingList}>
+                    {d.actions.copy}
+                  </button>
+                  <button className="recipe-detail__btn" onClick={handleDownloadShoppingList}>
+                    {d.actions.download}
+                  </button>
+                  <button className="recipe-detail__btn" onClick={() => setIsShoppingListOpen(false)}>
+                    {d.actions.close}
+                  </button>
+                </div>
+              </div>
+              <pre className="recipe-detail__shopping-list">
+                {shoppingList}
+              </pre>
+            </div>
+          )}
+
           <div className="recipe-detail__section">
             <h3 className="recipe-detail__section-title">{t.createRecipe.form.sections.steps}</h3>
             <div className="recipe-detail__steps">
-              {recipe.steps?.sort((a: any, b: any) => a.stepNumber - b.stepNumber).map((step: any) => (
-                <div key={step.stepNumber} className="recipe-detail__step">
-                  <span className="recipe-detail__step-index">{step.stepNumber}.</span>
-                  <p className="recipe-detail__description">{step.description}</p>
-                </div>
-              ))}
+              {recipe.steps
+                ?.sort((a: any, b: any) => a.stepNumber - b.stepNumber)
+                .map((step: any) => (
+                  <div key={step.stepNumber} className="recipe-detail__step">
+                    <span className="recipe-detail__step-index">{step.stepNumber}.</span>
+                    <p className="recipe-detail__description">{step.description}</p>
+                  </div>
+                ))}
             </div>
           </div>
         </div>
@@ -297,10 +409,12 @@ export default function RecipeDetailPage({ lang }: Props) {
           <h3 className="recipe-detail__section-title">{d.actions.sendComment}</h3>
           <div className="recipe-detail__comment-form">
             <div className="recipe-detail__comment-form-row">
-              <div className="recipe-detail__rating-select" onMouseLeave={() => setHoverRating(0)}>
+              <div
+                className="recipe-detail__rating-select"
+                onMouseLeave={() => setHoverRating(0)}
+              >
                 {[1, 2, 3, 4, 5].map((star) => {
                   const isFilled = hoverRating >= star || (hoverRating === 0 && userRating >= star);
-
                   return (
                     <button
                       key={star}
@@ -324,7 +438,7 @@ export default function RecipeDetailPage({ lang }: Props) {
                 rows={3}
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                placeholder="..."
+                placeholder={d.hints.commentPlaceholder}
               />
             </div>
 
@@ -346,16 +460,15 @@ export default function RecipeDetailPage({ lang }: Props) {
               const userScore = getUserRating(c.user?.id);
               const avatarPath = c.user?.userSettingsDTO?.imageUrl || c.user?.imageUrl;
               const commentUserAvatar = avatarPath
-                ? (avatarPath.startsWith("http") ? avatarPath : `${API_URL}${avatarPath}`)
+                ? getFullUrl(avatarPath)
                 : "/images/default-avatar.png";
 
-              const formattedDate = c.createdAt ? new Date(c.createdAt).toLocaleDateString(lang === 'cz' ? 'cz-CZ' : 'en-EN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              }) : "—";
+              const formattedDate = c.createdAt
+                ? new Date(c.createdAt).toLocaleDateString(
+                  lang === "cz" ? "cz-CZ" : "en-EN",
+                  { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }
+                )
+                : d.hints.noDate;
 
               return (
                 <div key={c.id} className="recipe-detail__comment">
@@ -364,10 +477,11 @@ export default function RecipeDetailPage({ lang }: Props) {
                       src={commentUserAvatar}
                       alt={c.user?.username}
                       className="recipe-detail__comment-avatar"
-                      onError={(e) => { (e.target as HTMLImageElement).src = "/images/default-avatar.png" }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/images/default-avatar.png";
+                      }}
                     />
                   </div>
-
                   <div className="recipe-detail__comment-main">
                     <div className="recipe-detail__comment-head">
                       <div className="recipe-detail__comment-user-info">
@@ -396,16 +510,14 @@ export default function RecipeDetailPage({ lang }: Props) {
         </div>
       </div>
 
-      {
-        isModalOpen && recipe.images && recipe.images.length > 0 && (
-          <div className="profile__modal" onClick={() => setIsModalOpen(false)}>
-            <div className="profile__modal-content">
-              <img src={mainImage} alt={recipe.name} />
-              <button className="profile__modal-close">✕</button>
-            </div>
+      {isModalOpen && recipe.images?.length > 0 && (
+        <div className="profile__modal" onClick={() => setIsModalOpen(false)}>
+          <div className="profile__modal-content">
+            <img src={mainImage} alt={recipe.name} />
+            <button className="profile__modal-close">✕</button>
           </div>
-        )
-      }
-    </section >
+        </div>
+      )}
+    </section>
   );
 }

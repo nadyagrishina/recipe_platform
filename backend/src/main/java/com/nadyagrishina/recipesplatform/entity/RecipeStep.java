@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Entity
 @Table(
-        name = "recipe_steps",
+        name = "RECIPE_STEPS",
         uniqueConstraints = @UniqueConstraint(
                 columnNames = {"recipe_id", "step_number"}
         )

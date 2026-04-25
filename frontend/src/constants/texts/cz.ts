@@ -169,6 +169,10 @@ export const TEXTS_CZ = {
       loading: "Načítání receptu...",
       deleteRecipe: "Smazat",
       editRecipe: "Upravit recept",
+      shoppingList: "Nákupní seznam",
+      download: "Stáhnout",
+      copy: "Kopírovat",
+      close: "Zavřít"
     },
     sections: {
       photos: "Fotky",
@@ -186,6 +190,8 @@ export const TEXTS_CZ = {
       noComments: "Zatím žádné komentáře. Buďte první 😉",
       noDescription: "Tento recept zatím nemá popis.",
       deleteRecipe: "Opravdu chcete smazat tento recept?",
+      commentPlaceholder: "Napište komentář...",
+      noDate: "—"
     },
     meta: {
       time: "Doba",
@@ -203,6 +209,10 @@ export const TEXTS_CZ = {
     errors: {
       invalidId: "Neplatné ID receptu",
       notFound: "Recept nebyl nalezen",
+      generic: "Došlo k chybě",
+      copyFailed: "Kopírování se nezdařilo",
+      deleteFailed: "Smazání se nezdařilo",
+      updateFailed: "Úprava se nezdařila"
     },
   },
   profile: {
@@ -218,7 +228,7 @@ export const TEXTS_CZ = {
     settings: "Nastavení",
     logout: "Odhlásit se",
     loading: "Načítání profilu...",
-    loadError: "Profil se nepodařilo načíst.",
+    loadError: "Stranku se nepodařilo načíst.",
     noRecipes: "Zatím nemáte žádné recepty.",
     joined: "Na platformě od",
     updated: "Naposledy upraveno",
